@@ -82,12 +82,12 @@ def get_bitmap_offsets(funcnames):
 bitmap_offsets = []
 
 for f in currentProgram.getFunctionManager().getFunctionsNoStubs(False):
-	print(f)
+	#print(f)
 	if not f.isThunk():
 		func_name = f.getName()
 
 		if func_name[0:len("__afl")] != "__afl" and func_name[0:len("__sanitizer")] != "__sanitizer":
-			print(func_name)
+			#print(func_name)
 
 			bitmap_offset = get_bitmap_offset(func_name)
 
