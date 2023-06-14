@@ -89,18 +89,59 @@ def get_bitmap_offsets():
 
 	return bitmap_offsets
 
-def get_callers_with_bitmap_offsets_recursive(func, depth=0, max_depth=10):
+def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=10):
 	if depth >= max_depth:
 		return []
 
 	callers = []
 
 	for caller in func.getCallingFunctions(None):
-		caller_tuple = get_callers_with_bitmap_offsets_recursive(caller, depth=depth+1, max_depth=max_depth)
+		caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(caller, weight/2, depth=depth+1, max_depth=max_depth)
 
 		callers.append(caller_tuple)
 
-	return (func, get_bitmap_offset(func), callers)
+	return (func, get_bitmap_offset(func), weight, callers)
+
+def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
+	result = []
+
+	func = func_tuple[0]
+	bitmap_offset = func_tuple[1]
+	weight = func_tuple[2]
+	callers = func_tuple[3]
+
+	result.append((func, bitmap_offset, weight))
+
+	for caller_tuple in callers:
+		result += unroll_func_weight_bitmap_caller_tuple_recursive(caller_tuple)
+
+	return result
+
+def do_stuff(input_format):
+	"""
+	@param input_format for now is a dictionary with keys being the function names and values being their weights
+
+	@returns list of tuples in format of (func_name, bitmap_offset, weight)
+			 where bitmap_offset is unique and no two function names should have the same bitmap offset otherwise we error
+	"""
+
+	result = []
+
+	for func_name in input_format:
+		func = getFunction(func_name)
+		weight = input_format[func_name]
+
+		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
+
+		result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
+
+	# TODO make sure that all tuples with the same function also have the same bitmap offset
+
+	# TODO handle multiple occurences of the same function . e.g. A calls B and A calls C . Do we assign more weight to this function? Average? What is smart?
+
+	
+
+	return result
 
 #print(get_bitmap_offsets())
 
