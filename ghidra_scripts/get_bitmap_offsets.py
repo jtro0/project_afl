@@ -44,18 +44,21 @@ def get_func_possible_bitmap_locations(func):
 
 """
 
-def get_highfunc_by_name(name):
-	f = getFunction(name)
-
-	results = decompintf.decompileFunction(f, 30, None)
+def func_to_highfunc(func):
+	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
 
 	return highfunc
 
-def get_bitmap_offset(funcname):
-	hf = get_highfunc_by_name(funcname)
+def get_highfunc_by_name(name):
+	f = getFunction(name)
 
-	firstBB = hf.getBasicBlocks()[0]
+	return func_to_highfunc(f)
+
+def get_bitmap_offset(func):
+	highfunc = func_to_highfunc(func)
+
+	firstBB = highfunc.getBasicBlocks()[0]
 
 	for op in firstBB.getIterator():
 		if op.opcode == op.PTRADD:
@@ -68,32 +71,37 @@ def get_bitmap_offset(funcname):
 
 	return None
 
-def get_bitmap_offsets(funcnames):
-	result = []
+def get_bitmap_offsets():
+	bitmap_offsets = []
 
-	for name in funcnames:
-		bitmap_offset = get_bitmap_offset(name)
+	for f in currentProgram.getFunctionManager().getFunctionsNoStubs(False):
+		#print(f)
+		if not f.isThunk():
+			func_name = f.getName()
 
-		if bitmap_offset != None:
-			result.append((name, get_bitmap_offset(name)))
+			if func_name[0:len("__afl")] != "__afl" and func_name[0:len("__sanitizer")] != "__sanitizer":
+				#print(func_name)
 
-	return result
+				bitmap_offset = get_bitmap_offset(f)
 
-bitmap_offsets = []
+				if bitmap_offset != None:
+					bitmap_offsets.append((f, bitmap_offset))
 
-for f in currentProgram.getFunctionManager().getFunctionsNoStubs(False):
-	#print(f)
-	if not f.isThunk():
-		func_name = f.getName()
+	return bitmap_offsets
 
-		if func_name[0:len("__afl")] != "__afl" and func_name[0:len("__sanitizer")] != "__sanitizer":
-			#print(func_name)
+def get_callers_with_bitmap_offsets_recursive(func, depth=0, max_depth=10):
+	if depth >= max_depth:
+		return []
 
-			bitmap_offset = get_bitmap_offset(func_name)
+	callers = []
 
-			if bitmap_offset != None:
-				bitmap_offsets.append((func_name, bitmap_offset))
+	for caller in func.getCallingFunctions(None):
+		caller_tuple = get_callers_with_bitmap_offsets_recursive(caller, depth=depth+1, max_depth=max_depth)
 
-print(bitmap_offsets)
+		callers.append(caller_tuple)
+
+	return (func, get_bitmap_offset(func), callers)
+
+#print(get_bitmap_offsets())
 
 # execfile("C:\\Users\\mans\\Desktop\\uni\\PST-FUZZ\\ghidra_scripts\\get_bitmap_offsets.py")
