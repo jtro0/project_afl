@@ -3,47 +3,6 @@ decompintf.openProgram(currentProgram)
 
 asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 
-"""
-
-def get_afl_maybe_log():
-	fm = currentProgram.getFunctionManager()
-	funcs = fm.getFunctions(True)
-	filtered_funcs = filter(lambda f: f.getName() == "__afl_maybe_log", funcs)
-
-	assert len(filtered_funcs) == 1
-
-	return filtered_funcs[0]
-
-#afl_maybe_log_func = get_afl_maybe_log()
-
-#def find_previous_afl_maybe_log_calls(addr): # param 'addr' is the address of the current call to __afl_maybe_log . type(addr) == Address 
-
-#def handle_bb(bb):
-#	for op in bb.getIterator():
-#		if op.opcode == op.CALL:	
-
-#def handle_highfunc(hf):
-#	for bb in hf.getBasicBlocks():
-#		handle_bb(bb)
-def find_func_by_name(name):
-	fm = currentProgram.getFunctionManager()
-	funcs = fm.getFunctions(True)
-	filtered_funcs = filter(lambda f: f.getName() == name, funcs)
-
-	assert len(filtered_funcs) == 1
-
-	return filtered_funcs[0]
-
-def get_func_possible_bitmap_locations(func):
-	firstBB = func.getBasicBlocks()[0]
-
-	for op in firstBB.getIterator():
-		print(op)
-
-	return	
-
-"""
-
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
@@ -139,7 +98,7 @@ def do_stuff(input_format):
 
 	# TODO handle multiple occurences of the same function . e.g. A calls B and A calls C . Do we assign more weight to this function? Average? What is smart?
 
-	
+
 
 	return result
 
