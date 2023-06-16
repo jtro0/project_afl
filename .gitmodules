@@ -1,6 +1,6 @@
 [submodule "AFLplusplus"]
 	path = AFLplusplus
-	url = https://github.com/AFLplusplus/AFLplusplus.git
+	url = https://github.com/jtro0/AFLplusplus.git
 [submodule "magma"]
 	path = magma
-	url = https://github.com/HexHive/magma.git
+	url = https://github.com/jtro0/magma.git
