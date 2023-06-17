@@ -76,6 +76,48 @@ def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 
 	return result
 
+def handle_duplicate_func_bitmap_weight_tuples(x):
+	"""
+	This function handles duplicate functions.
+
+	It also removes functions for which bitmap offset is None 
+
+	For example lets say we want to reach functions B and C and both of them are called from A,
+	then we speculate that A must be an interesting function to reach as it can reach both B and C.
+	A will also by the logic of our tool be a duplicate in the list of functions that are interesting.
+
+	Thus in this function we will check for duplicate functions, make sure they have the same bitmap offset,
+	and merge them to have a higher weight.
+
+	"""
+
+	# TODO : This function seems a bit ugly / inefficient. However does it really matter as this tool is only executed once when preparing the target program for fuzzing.s
+
+	seen = {} # Key: bitmap_offset ; Value: (func, weight) ; NOTE bitmap_offset is the key as we want to make sure this is unique
+	result = []
+
+	for t in x:
+		func = t[0]
+		bitmap_offset = t[1]
+		weight = t[2]
+
+		#print(t)
+
+		if bitmap_offset == None:
+			continue
+
+		if bitmap_offset in seen:
+			assert seen[bitmap_offset][0] == func
+
+			seen[bitmap_offset] = (seen[bitmap_offset][0], seen[bitmap_offset][1] + weight) # TODO : maybe do something else than the sum
+		else:
+			seen[bitmap_offset] = (func, weight)
+
+	for bo in seen:
+		result.append((seen[bo][0], bo, seen[bo][1])) # Is there a better way to do this?
+
+	return result
+
 def do_stuff(input_format):
 	"""
 	@param input_format for now is a dictionary with keys being the function names and values being their weights
@@ -84,7 +126,7 @@ def do_stuff(input_format):
 			 where bitmap_offset is unique and no two function names should have the same bitmap offset otherwise we error
 	"""
 
-	result = []
+	pre_result = []
 
 	for func_name in input_format:
 		func = getFunction(func_name)
@@ -92,16 +134,10 @@ def do_stuff(input_format):
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
 
-		result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
+		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
 
-	# TODO make sure that all tuples with the same function also have the same bitmap offset
-
-	# TODO handle multiple occurences of the same function . e.g. A calls B and A calls C . Do we assign more weight to this function? Average? What is smart?
-
-
+	result = handle_duplicate_func_bitmap_weight_tuples(pre_result)
 
 	return result
 
 #print(get_bitmap_offsets())
-
-# execfile("C:\\Users\\mans\\Desktop\\uni\\PST-FUZZ\\ghidra_scripts\\get_bitmap_offsets.py")
