@@ -14,7 +14,7 @@ def get_highfunc_by_name(name):
 
 	return func_to_highfunc(f)
 
-def get_bitmap_offset(func):
+def get_bitmap_offset(func): # TODO : change this function to return list of all bitmap offsets in this function
 	highfunc = func_to_highfunc(func)
 
 	firstBB = highfunc.getBasicBlocks()[0]
@@ -30,25 +30,25 @@ def get_bitmap_offset(func):
 
 	return None
 
-def get_bitmap_offsets():
-	bitmap_offsets = []
+def get_all_bitmap_offsets_for_func(func):
+	highfunc = func_to_highfunc(func)
 
-	for f in currentProgram.getFunctionManager().getFunctionsNoStubs(False):
-		#print(f)
-		if not f.isThunk():
-			func_name = f.getName()
+	result = []
 
-			if func_name[0:len("__afl")] != "__afl" and func_name[0:len("__sanitizer")] != "__sanitizer":
-				#print(func_name)
+	for bb in highfunc.getBasicBlocks():
+		for op in bb.getIterator():
+			if op.opcode == op.PTRADD:
+				op_arg0_addr = op.getInput(0).getAddress()
 
-				bitmap_offset = get_bitmap_offset(f)
+				if currentProgram.getSymbolTable().getGlobalSymbol("__afl_area_ptr", op_arg0_addr):
+					result.append(op.getInput(1).getOffset())
+					break
 
-				if bitmap_offset != None:
-					bitmap_offsets.append((f, bitmap_offset))
+	#assert "Couldnt find __afl_area_ptr in first basic block" == False
 
-	return bitmap_offsets
+	return result
 
-def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=10):
+def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=10): #IMPORTANT : we might want to modify the max depth
 	if depth >= max_depth:
 		return []
 
@@ -59,7 +59,7 @@ def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0,
 
 		callers.append(caller_tuple)
 
-	return (func, get_bitmap_offset(func), weight, callers)
+	return (func, get_all_bitmap_offsets_for_func(func), weight, callers)
 
 def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 	result = []
@@ -76,20 +76,18 @@ def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 
 	return result
 
+"""
 def handle_duplicate_func_bitmap_weight_tuples(x):
-	"""
-	This function handles duplicate functions.
+	#This function handles duplicate functions.
 
-	It also removes functions for which bitmap offset is None 
+	#It also removes functions for which bitmap offset is None 
 
-	For example lets say we want to reach functions B and C and both of them are called from A,
-	then we speculate that A must be an interesting function to reach as it can reach both B and C.
-	A will also by the logic of our tool be a duplicate in the list of functions that are interesting.
+	#For example lets say we want to reach functions B and C and both of them are called from A,
+	#then we speculate that A must be an interesting function to reach as it can reach both B and C.
+	#A will also by the logic of our tool be a duplicate in the list of functions that are interesting.
 
-	Thus in this function we will check for duplicate functions, make sure they have the same bitmap offset,
-	and merge them to have a higher weight.
-
-	"""
+	#Thus in this function we will check for duplicate functions, make sure they have the same bitmap offset,
+	#and merge them to have a higher weight.
 
 	# TODO : This function seems a bit ugly / inefficient. However does it really matter as this tool is only executed once when preparing the target program for fuzzing.s
 
@@ -117,6 +115,32 @@ def handle_duplicate_func_bitmap_weight_tuples(x):
 		result.append((seen[bo][0], bo, seen[bo][1])) # Is there a better way to do this?
 
 	return result
+"""
+
+def post_process_func_bitmap_weight_tuples(x):
+	seen = {} # Key : func ; Value : (bitmap_offsets, weight)
+
+	for t in x:
+		func = t[0]
+		bitmap_offsets = t[1]
+		weight = t[2]
+
+		if bitmap_offsets == []:
+			continue
+
+		if func in seen:
+			assert seen[func][0] == bitmap_offsets
+
+			seen[func] = (bitmap_offsets, seen[func][1] + weight)
+		else:
+			seen[func] = (bitmap_offsets, weight)
+
+	result = []
+
+	for func in seen:
+		result.append((func, seen[func][0], seen[func][1]))
+
+	return result
 
 def do_stuff(input_format):
 	"""
@@ -136,8 +160,6 @@ def do_stuff(input_format):
 
 		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
 
-	result = handle_duplicate_func_bitmap_weight_tuples(pre_result)
+	result = post_process_func_bitmap_weight_tuples(pre_result) #handle_duplicate_func_bitmap_weight_tuples(pre_result)
 
 	return result
-
-#print(get_bitmap_offsets())
