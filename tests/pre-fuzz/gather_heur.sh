@@ -14,8 +14,6 @@ Fetch_Targets() {
     echo "Cloning targets"
     for TARGET in $path/*; do
         if [ -d "${TARGET}" ]; then
-            # TARGET=$(basename $D)
-            echo "$TARGET"   # your processing here
             export TARGET=$TARGET
             $TARGET/fetch.sh
         fi
