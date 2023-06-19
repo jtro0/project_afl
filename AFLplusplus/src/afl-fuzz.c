@@ -497,7 +497,7 @@ int main(int argc, char **argv_orig, char **envp) {
   while (
       (opt = getopt(
            argc, argv,
-           "+Ab:B:c:CdDe:E:hi:I:f:F:g:G:l:L:m:M:nNOo:p:RQs:S:t:T:UV:WXx:YZ")) >
+           "+Ab:B:c:CdDe:E:hi:I:j:J:f:F:g:G:l:L:m:M:nNOo:p:RQs:S:t:T:UV:WXx:YZ")) >
       0) {
 
     switch (opt) {
@@ -1233,6 +1233,12 @@ int main(int argc, char **argv_orig, char **envp) {
             "Radamsa is now a custom mutator, please use that "
             "(custom_mutators/radamsa/).");
 
+        break;
+      case 'j':
+      case 'J':
+        afl->weights_file_name = optarg;
+        afl->weights_file = open(afl->weights_file_name, O_RDONLY);
+        if (afl->weights_file < 0) { PFATAL("Unable to open '%s'", afl->weights_file_name); }
         break;
 
       default:
