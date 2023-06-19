@@ -1,7 +1,0 @@
-[submodule "AFLplusplus"]
-	path = AFLplusplus
-	url = https://github.com/jtro0/AFLplusplus.git
-	branch = stable
-[submodule "magma"]
-	path = magma
-	url = https://github.com/jtro0/magma.git
