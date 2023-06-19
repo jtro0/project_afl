@@ -76,47 +76,6 @@ def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 
 	return result
 
-"""
-def handle_duplicate_func_bitmap_weight_tuples(x):
-	#This function handles duplicate functions.
-
-	#It also removes functions for which bitmap offset is None 
-
-	#For example lets say we want to reach functions B and C and both of them are called from A,
-	#then we speculate that A must be an interesting function to reach as it can reach both B and C.
-	#A will also by the logic of our tool be a duplicate in the list of functions that are interesting.
-
-	#Thus in this function we will check for duplicate functions, make sure they have the same bitmap offset,
-	#and merge them to have a higher weight.
-
-	# TODO : This function seems a bit ugly / inefficient. However does it really matter as this tool is only executed once when preparing the target program for fuzzing.s
-
-	seen = {} # Key: bitmap_offset ; Value: (func, weight) ; NOTE bitmap_offset is the key as we want to make sure this is unique
-	result = []
-
-	for t in x:
-		func = t[0]
-		bitmap_offset = t[1]
-		weight = t[2]
-
-		#print(t)
-
-		if bitmap_offset == None:
-			continue
-
-		if bitmap_offset in seen:
-			assert seen[bitmap_offset][0] == func
-
-			seen[bitmap_offset] = (seen[bitmap_offset][0], seen[bitmap_offset][1] + weight) # TODO : maybe do something else than the sum
-		else:
-			seen[bitmap_offset] = (func, weight)
-
-	for bo in seen:
-		result.append((seen[bo][0], bo, seen[bo][1])) # Is there a better way to do this?
-
-	return result
-"""
-
 def post_process_func_bitmap_weight_tuples(x):
 	seen = {} # Key : func ; Value : (bitmap_offsets, weight)
 
