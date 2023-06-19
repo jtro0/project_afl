@@ -1,8 +1,8 @@
-from os import system
-from os.path import exists
 import argparse
 import re
-from collections import Counter
+import subprocess
+from os.path import join
+from os import walk
 
 # Parses the command line arguments.
 def parse_args():
@@ -11,42 +11,49 @@ def parse_args():
                     help='Path to git repository.')
     return parser.parse_args()
 
-# This function uses the get_commits.sh script to create a file with lines of function names in github's diff format.
-def create_diff_file(repo_path):
-    if not exists("./diffs.txt"):
-        print("Creating diff file for repo at: " + repo_path)
-        command = "./get_commits.sh -p " + repo_path + " > diffs.txt"
-        system(command)
-        print("Done and saved as diffs.txt")
-    else:
-        print('Diff file already exists')
-    diff_file = open('diffs.txt', 'r')
-    return diff_file
+# This function traverses a repo and returns all function names according to a pattern
+# that SHOULD represent most of the c type function declarations.
+def search_funcs(directory):
+    pattern = '^\s*(?:(?:inline|static)\s+){0,2}(?!else|typedef|return)\w+\s+\*?\s*(\w+)\s*\([^0]+\)\s*;?'
 
-# This function uses regexes to parse a diff file and return,
-# a dictionary holding the frequencies in which functions occur
-# in the commit history. Only supports c function declaration for 
-# now.
-def calc_func_freqs(diff_file):
     funcs = []
-    for line in diff_file:
-        match = re.search(r'\b(\w+)\s+\(', line)
-        if match:
-            func_name = match.group(1)
-            funcs.append(func_name)
-    freqs = dict(Counter(funcs))
-    freqs_sorted = dict(sorted(freqs.items(), key=lambda item: item[1], reverse=True))
-    return freqs_sorted
+
+    for root, dirs, files in walk(directory):
+        for file_str in files:
+            if file_str[-2:] == '.c' or file_str[-2] == '.h':
+                file_path = join(root, file_str)
+                # Excludes testing function from function list.
+                if 'test' in file_path:
+                    continue
+                file = open(file_path, 'r')
+                for line in file:
+                    match = re.search(pattern, line)
+                    if match:
+                        func_name = match.group(1)
+                        funcs.append((func_name, file_path))
+                        
+                
+
+    return funcs
+
+# Function that starts a subprocess, mostly used to check the git logs.
+def run_command(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    output = process.communicate()[0]
+    output = output.decode('utf-8')
+
+    return output
 
 
 def main():
     args = parse_args()
-    diff_file = create_diff_file(args.repo_path)
-    func_freqs = calc_func_freqs(diff_file)
-    print(func_freqs)
-    
-    
-    
+    weighted_funcs = []
+    funcs = search_funcs(args.repo_path)
+    for func in funcs:
+        func_freq = run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' | grep -c commit')
+        weighted_funcs.append((func[0], func_freq))
+
+    print(weighted_funcs)
 
 if __name__ == "__main__":
     main()
