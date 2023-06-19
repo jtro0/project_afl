@@ -786,6 +786,12 @@ typedef struct afl_state {
   u32   bitsmap_size;
 #endif
 
+  /*
+  Added fields for our own fuzzer
+  */
+  char *weights_file_name;
+  FILE *weights_file;
+
 } afl_state_t;
 
 struct custom_mutator {
