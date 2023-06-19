@@ -29,6 +29,25 @@
   #define NAME_MAX _XOPEN_NAME_MAX
 #endif
 
+/*
+PST-FUZZ
+
+Gets the total weight for the given bitmap
+*/
+
+u32 pst_fuzz_calculate_bitmap_weight(afl_state_t *afl, u8 *mem) {
+  u32 i;
+  u32 total_weight;
+
+  for (i = 0 ; i < afl->bitmap_weight_array_size ; i++) {
+    if (mem[afl->bitmap_weight_array[i].bitmap_offset] != 0) { // TODO : does this work as expected?
+      total_weight += afl->bitmap_weight_array[i].weight;
+    }
+  }
+
+  return total_weight;
+}
+
 /* Write bitmap to file. The bitmap is useful mostly for the secret
    -B option, to focus a separate fuzzing session on a particular
    interesting input without rediscovering all the others. */
