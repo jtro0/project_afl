@@ -140,6 +140,11 @@ extern s16 interesting_16[INTERESTING_8_LEN + INTERESTING_16_LEN];
 extern s32
     interesting_32[INTERESTING_8_LEN + INTERESTING_16_LEN + INTERESTING_32_LEN];
 
+struct bitmap_weight_tuple { /* PST-FUZZ */
+  u32 bitmap_offset;
+  u32 weight;
+};
+
 struct tainted {
 
   u32             pos;
@@ -791,6 +796,9 @@ typedef struct afl_state {
   */
   char *weights_file_name;
   FILE *weights_file;
+
+  struct bitmap_weight_tuple *bitmap_weight_array;
+  u32 bitmap_weight_array_size;
 
 } afl_state_t;
 
