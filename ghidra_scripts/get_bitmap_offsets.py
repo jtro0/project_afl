@@ -76,7 +76,7 @@ def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 
 	return result
 
-def post_process_func_bitmap_weight_tuples(x):
+def handle_duplicate_func_bitmap_weight_tuples(x):
 	seen = {} # Key : func ; Value : (bitmap_offsets, weight)
 
 	for t in x:
@@ -101,6 +101,21 @@ def post_process_func_bitmap_weight_tuples(x):
 
 	return result
 
+def func_bitmap_weight_tuples_to_bitmap_weight_map(x):
+	result = {}
+
+	for t in x:
+		bitmap_offsets = t[1]
+		weight = t[2]
+
+		for o in bitmap_offsets:
+			if o in result:
+				assert result[o] == weight
+			else:
+				result[o] = weight
+
+	return result
+
 def do_stuff(input_format):
 	"""
 	@param input_format for now is a dictionary with keys being the function names and values being their weights
@@ -119,6 +134,8 @@ def do_stuff(input_format):
 
 		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
 
-	result = post_process_func_bitmap_weight_tuples(pre_result) #handle_duplicate_func_bitmap_weight_tuples(pre_result)
+	no_dups = handle_duplicate_func_bitmap_weight_tuples(pre_result)
+
+	result = func_bitmap_weight_tuples_to_bitmap_weight_map(no_dups)
 
 	return result
