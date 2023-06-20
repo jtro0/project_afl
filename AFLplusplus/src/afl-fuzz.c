@@ -2631,6 +2631,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
           //create_alias_table(afl);
 
+           afl->reinit_table = 0;
         }
 
         do {
