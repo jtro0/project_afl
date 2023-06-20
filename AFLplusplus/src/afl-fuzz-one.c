@@ -407,11 +407,15 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   }
 
+  /* PST-FUZZ we dont care about AFL favored here... */
+
+  /*
+
   if (likely(afl->pending_favored)) {
 
-    /* If we have any favored, non-fuzzed new arrivals in the queue,
-       possibly skip to them at the expense of already-fuzzed or non-favored
-       cases. */
+    // If we have any favored, non-fuzzed new arrivals in the queue,
+    // possibly skip to them at the expense of already-fuzzed or non-favored
+    // cases.
 
     if ((afl->queue_cur->fuzz_level || !afl->queue_cur->favored) &&
         likely(rand_below(afl, 100) < SKIP_TO_NEW_PROB)) {
@@ -424,9 +428,9 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
              afl->queued_items > 10) {
 
-    /* Otherwise, still possibly skip non-favored cases, albeit less often.
-       The odds of skipping stuff are higher for already-fuzzed inputs and
-       lower for never-fuzzed entries. */
+    // Otherwise, still possibly skip non-favored cases, albeit less often.
+    // The odds of skipping stuff are higher for already-fuzzed inputs and
+    // lower for never-fuzzed entries.
 
     if (afl->queue_cycle > 1 && !afl->queue_cur->fuzz_level) {
 
@@ -439,6 +443,8 @@ u8 fuzz_one_original(afl_state_t *afl) {
     }
 
   }
+
+  */
 
 #endif                                                     /* ^IGNORE_FINDS */
 
