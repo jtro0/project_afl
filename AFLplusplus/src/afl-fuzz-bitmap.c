@@ -36,8 +36,8 @@ Gets the total weight for the given bitmap
 */
 
 u32 pst_fuzz_calculate_bitmap_weight(afl_state_t *afl, u8 *mem) {
-  u32 i;
-  u32 total_weight;
+  u32 i = 0;
+  u32 total_weight = 0;
 
   for (i = 0 ; i < afl->bitmap_weight_array_size ; i++) {
     if (mem[afl->bitmap_weight_array[i].bitmap_offset] != 0) { // TODO : does this work as expected?
