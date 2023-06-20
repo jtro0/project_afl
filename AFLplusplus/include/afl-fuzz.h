@@ -202,6 +202,8 @@ struct queue_entry {
   double perf_score,                    /* performance score                */
       weight;
 
+  u32 bitmap_weight; //PST-FUZZ : TODO should this be a double instead?
+
   u8 *testcase_buf;                     /* The testcase buffer, if loaded.  */
 
   u8             *cmplog_colorinput;    /* the result buf of colorization   */
