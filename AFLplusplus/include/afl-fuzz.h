@@ -1231,6 +1231,10 @@ AFL_RAND_RETURN rand_next(afl_state_t *afl);
 /* probability between 0.0 and 1.0 */
 double rand_next_percent(afl_state_t *afl);
 
+/* PST-FUZZ */
+
+u32 pst_fuzz_calculate_bitmap_weight(afl_state_t *afl, u8 *mem);
+
 /**** Inline routines ****/
 
 /* Generate a random number (from 0 to limit - 1). This may
