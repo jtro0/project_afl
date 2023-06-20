@@ -43,7 +43,7 @@ void run_afl_custom_queue_new_entry(afl_state_t *afl, struct queue_entry *q,
 
 #endif
 
-inline u32 pst_fuzz_select_next_queue_entry(afl_state_t *afl) {
+u32 pst_fuzz_select_next_queue_entry(afl_state_t *afl) {
   /* Loop over all UNFUZZED queue entries and select the entry which has the maximum bitmap_weight */
 
   u32 highest = 0; // IMPORTANT TODO : queue_buf can not be empty right???
