@@ -202,6 +202,8 @@ struct queue_entry {
   double perf_score,                    /* performance score                */
       weight;
 
+  u32 bitmap_weight; //PST-FUZZ : TODO should this be a double instead?
+
   u8 *testcase_buf;                     /* The testcase buffer, if loaded.  */
 
   u8             *cmplog_colorinput;    /* the result buf of colorization   */
@@ -1230,6 +1232,10 @@ AFL_RAND_RETURN rand_next(afl_state_t *afl);
 
 /* probability between 0.0 and 1.0 */
 double rand_next_percent(afl_state_t *afl);
+
+/* PST-FUZZ */
+
+u32 pst_fuzz_calculate_bitmap_weight(afl_state_t *afl, u8 *mem);
 
 /**** Inline routines ****/
 

@@ -2622,8 +2622,16 @@ int main(int argc, char **argv_orig, char **envp) {
 
           // we have new queue entries since the last run, recreate alias table
           prev_queued_items = afl->queued_items;
-          create_alias_table(afl);
 
+           /* PST-FUZZ
+
+          We dont use AFL's weighted random selection thus we do not need to create alias table
+
+          */
+
+          //create_alias_table(afl);
+
+           afl->reinit_table = 0;
         }
 
         do {
