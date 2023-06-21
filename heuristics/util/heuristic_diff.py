@@ -1,8 +1,9 @@
 import argparse
 import re
 import subprocess
-from os.path import join
-from os import walk
+from os.path import join, abspath
+from os import walk, chdir, getcwd
+import sys
 
 # Parses the command line arguments.
 def parse_args():
@@ -31,13 +32,11 @@ def search_funcs(directory):
                     if match:
                         func_name = match.group(1)
                         funcs.append((func_name, file_path))
-                        
-                
-
+    # print(funcs)
     return funcs
 
 # Function that starts a subprocess, mostly used to check the git logs.
-def run_command(command):
+def run_command(command):    
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     output = process.communicate()[0]
     output = output.decode('utf-8')
@@ -48,11 +47,14 @@ def run_command(command):
 def main():
     args = parse_args()
     weighted_funcs = []
-    funcs = search_funcs(args.repo_path)
+    orig_dir = getcwd()
+    chdir(join(orig_dir, args.repo_path))
+    funcs = search_funcs(".")
     for func in funcs:
         func_freq = run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' | grep -c commit')
-        weighted_funcs.append((func[0], func_freq))
-
+        # print(func_freq)
+        weighted_funcs.append((func[0], int(func_freq)))
+    chdir(orig_dir)
     print(weighted_funcs)
 
 if __name__ == "__main__":

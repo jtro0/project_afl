@@ -14,7 +14,9 @@ Fetch_Targets() {
     for TARGET in $path/*; do
         if [ -d "${TARGET}" ]; then
             export TARGET=$TARGET
+            # cd $TARGET
             $TARGET/fetch.sh
+            # cd $old_dir
         fi
     done
 }
@@ -23,7 +25,8 @@ Fetch_Heuristics() {
     echo "Getting heuristics"
     for TARGET in $path/*; do
         if [ -d "${TARGET}" ]; then
-            python $heur $TARGET/repo
+            # python3 $heur $TARGET/repo
+            python3 $heur $TARGET/repo > out/heuristics/$(basename $TARGET)
         fi
     done
 }
@@ -35,13 +38,16 @@ if [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; then
 fi
 
 
-# if [ $# -ne 3 ]; then
-#     Help $0
-#     exit 1
-# fi
+if [ $# -ne 2 ]; then
+    Help $0
+    exit 1
+fi
 
 path=$1
 heur=$2
+old_dir=$PWD
 
 Fetch_Targets $path
+
+mkdir -p out/heuristics
 Fetch_Heuristics $heur
