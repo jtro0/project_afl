@@ -1,3 +1,5 @@
+import json
+
 decompintf = ghidra.app.decompiler.DecompInterface()
 decompintf.openProgram(currentProgram)
 
@@ -139,3 +141,23 @@ def do_stuff(input_format):
 	result = func_bitmap_weight_tuples_to_bitmap_weight_map(no_dups)
 
 	return result
+
+def parse_input_file(input_file):
+	with open(input_file, "r") as f:
+		return json.load(f)
+
+def dump_output_file(output_data, output_file):
+	with open(output_file, "w") as f:
+		print(output_data)
+		json.dump(output_data, f)
+
+def do_all_the_stuff(input_file, output_file):
+	dump_output_file(do_stuff(parse_input_file(input_file)), output_file)
+
+args = getScriptArgs()
+
+if len(args) != 2:
+    print("Parameters: <weight map input file> <bitmap weight output file>")
+    exit(-1)
+
+do_all_the_stuff(args[0], args[1])
