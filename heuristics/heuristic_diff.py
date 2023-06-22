@@ -9,6 +9,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='This script returns a tuple of all function names in a git repository and the corresponding weights')
     parser.add_argument('repo_path', type=str,
                     help='Absolute path to git repository.')
+    parser.add_argument('output_path', type=bool,
+                    help='Enter either 1 if you want the file path in the output, otherwise 0.')
     return parser.parse_args()
 
 # This function traverses a repo and returns all function names according to a pattern
@@ -61,7 +63,10 @@ def main():
     funcs = search_funcs(args.repo_path)
     for func in funcs:
         func_freq = int(run_command('cd ' + args.repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
-        weighted_funcs.append((func[0], func_freq))
+        if args.file_path:
+            weighted_funcs.append((func[0], func_freq, func[1]))
+        else:
+            weighted_funcs.append((func[0], func_freq))
 
     # Filter all the functions without a commit history out, and sort the relevant funcs by commits.
     weighted_funcs = list(filter(lambda x: x[1] != 0, weighted_funcs))
