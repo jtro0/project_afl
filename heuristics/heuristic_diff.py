@@ -5,7 +5,7 @@ from os.path import join
 from os import walk, chdir
 
 #These are words that can't be in the ast dump.
-FORBIDDEN_WORDS = ['extern', 'implicit', 'invalid', '__']
+FORBIDDEN_WORDS = ['extern', 'implicit']
 
 
 # Parses the command line arguments.
@@ -17,13 +17,21 @@ def parse_args():
                         and the file it got the function from. Otherwise only the first two''')
     return parser.parse_args()
 
+def parse_file(input_file):
+    lines = input_file.readlines()
+    filtered_lines = [line for line in lines if 'include' not in line]
+
+    # Write the filtered lines back to the file
+    with open('intermediate_file', 'w') as file:
+        file.writelines(filtered_lines)
+
 # This function traverses a repo and returns all function names according to a pattern
 def search_funcs(directory):
     # This pattern finds a word that is followed up with a space and then a single quote, in
     # a line that starts with FunctionDecl, to find all the function declarations in the ast.
     pattern_func_name = r".*FunctionDecl.*\b(\w+)\b(?=\s*')"
     
-    funcs = []
+    func_path_pairs = []
 
     for root, dirs, files in walk(directory):
         for file_str in files:
@@ -36,7 +44,7 @@ def search_funcs(directory):
                 ast_funcs = run_command('clang -Xclang -ast-dump -fsyntax-only ' + file_path + ' 2>/dev/null | grep FunctionDecl')
                 for line in ast_funcs.splitlines():
                     found = False
-                    # Check if one of the forbidden words is in the file.
+                    # Check if one of the forbidden words is in the line.
                     for word in FORBIDDEN_WORDS:
                         if word in line:
                             found = True
@@ -44,9 +52,9 @@ def search_funcs(directory):
                         match = re.search(pattern_func_name, line)
                         if match:
                             func_name = match.group(1)
-                            funcs.append((func_name, file_path))
+                            func_path_pairs.append((func_name, file_path))
                         
-    return funcs
+    return list(set(func_path_pairs))
 
 # Function that starts a subprocess.
 def run_command(command):
@@ -70,8 +78,9 @@ def main():
         else:
             weighted_funcs.append((func[0], func_freq))
 
-    # Filter all the functions without a commit history out, and sort the relevant funcs by commits.
+    # Filter all the functions without a commit history out, remove dups, and sort the relevant funcs by commits.
     weighted_funcs = list(filter(lambda x: x[1] != 0, weighted_funcs))
+    weighted_funcs = list(set(weighted_funcs))
     weighted_funcs = sorted(weighted_funcs, key=lambda x: x[1])
     
     for func in weighted_funcs:
