@@ -46,7 +46,7 @@ def search_funcs(directory):
                         
     return funcs
 
-# Function that starts a subprocess, mostly used to check the git logs.
+# Function that starts a subprocess.
 def run_command(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     output = process.communicate()[0]
