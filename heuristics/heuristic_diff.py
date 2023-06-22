@@ -2,7 +2,7 @@ import argparse
 import re
 import subprocess
 from os.path import join
-from os import walk, chdir, getcwd
+from os import walk
 
 # Parses the command line arguments.
 def parse_args():
