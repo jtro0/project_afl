@@ -2,15 +2,19 @@ import argparse
 import re
 import subprocess
 from os.path import join
-from os import walk
+from os import walk, chdir
+
+#These are words that can't be in the ast dump.
+FORBIDDEN_WORDS = ['extern', 'implicit', 'invalid', '__']
+
 
 # Parses the command line arguments.
 def parse_args():
     parser = argparse.ArgumentParser(description='This script returns a tuple of all function names in a git repository and the corresponding weights')
     parser.add_argument('repo_path', type=str,
                     help='Absolute path to git repository.')
-    parser.add_argument('output_path', type=bool,
-                    help='Enter either 1 if you want the file path in the output, otherwise 0.')
+    parser.add_argument('-p', '--path', action='store_true', help='''If flag is given the the program returns a pair of the function name, the frequency, 
+                        and the file it got the function from. Otherwise only the first two''')
     return parser.parse_args()
 
 # This function traverses a repo and returns all function names according to a pattern
@@ -18,8 +22,6 @@ def search_funcs(directory):
     # This pattern finds a word that is followed up with a space and then a single quote, in
     # a line that starts with FunctionDecl, to find all the function declarations in the ast.
     pattern_func_name = r".*FunctionDecl.*\b(\w+)\b(?=\s*')"
-    #These are words that can't be in the ast dump.
-    forbidden_words = ['extern', 'implicit', 'invalid', '__']
     
     funcs = []
 
@@ -35,7 +37,7 @@ def search_funcs(directory):
                 for line in ast_funcs.splitlines():
                     found = False
                     # Check if one of the forbidden words is in the file.
-                    for word in forbidden_words:
+                    for word in FORBIDDEN_WORDS:
                         if word in line:
                             found = True
                     if not found:
@@ -58,12 +60,12 @@ def run_command(command):
 def main():
     args = parse_args()
     weighted_funcs = []
-    
+
     # Search for functions in the repo in repo_path.
     funcs = search_funcs(args.repo_path)
     for func in funcs:
         func_freq = int(run_command('cd ' + args.repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
-        if args.file_path:
+        if args.path:
             weighted_funcs.append((func[0], func_freq, func[1]))
         else:
             weighted_funcs.append((func[0], func_freq))
