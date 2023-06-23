@@ -1,0 +1,1 @@
+cp -r AFLplusplus/ magma/fuzzers/pst_aflplusplus/

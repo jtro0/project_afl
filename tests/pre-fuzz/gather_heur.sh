@@ -15,6 +15,7 @@ Fetch_Targets() {
         if [ -d "${TARGET}" ]; then
             export TARGET=$TARGET
             # cd $TARGET
+            sudo $TARGET/preinstall.sh
             $TARGET/fetch.sh
             # cd $old_dir
         fi
@@ -27,6 +28,20 @@ Fetch_Heuristics() {
         if [ -d "${TARGET}" ]; then
             # python3 $heur $TARGET/repo
             python3 $heur $TARGET/repo > out/heuristics/$(basename $TARGET)
+        fi
+    done
+}
+
+Build_Targets() {
+    echo "Building targets"
+    for TARGET in $path/*; do
+        if [ -d "${TARGET}" ]; then
+            export TARGET=$TARGET
+            export OUT=$TARGET/out
+            mkdir -p $OUT
+            # cd $TARGET
+            $TARGET/build.sh
+            # cd $old_dir
         fi
     done
 }
@@ -49,5 +64,6 @@ old_dir=$PWD
 
 Fetch_Targets $path
 
-mkdir -p out/heuristics
-Fetch_Heuristics $heur
+# mkdir -p out/heuristics
+# Fetch_Heuristics $heur
+Build_Targets $path

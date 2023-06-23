@@ -1,3 +1,5 @@
 ghidra_scripts/headless/*
 .vscode
 **/repo
+**/*.tar
+**/log
