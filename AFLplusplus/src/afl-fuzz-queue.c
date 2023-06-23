@@ -43,12 +43,32 @@ void run_afl_custom_queue_new_entry(afl_state_t *afl, struct queue_entry *q,
 
 #endif
 
+u32 pst_fuzz_select_next_queue_entry(afl_state_t *afl) {
+  /* Loop over all UNFUZZED queue entries and select the entry which has the maximum bitmap_weight */
+
+  u32 highest = 0; // IMPORTANT TODO : queue_buf can not be empty right???
+  u32 i = 0;
+
+  for (i = 0; i < afl->queued_items && likely(afl->queue_buf[i]); i++) {
+    /* Skip fuzzed entries ONLY IF there are non fuzzed entries */
+
+    if (likely(afl->pending_not_fuzzed) && afl->queue_buf[i]->fuzz_level) continue;
+    
+    /* Check if this entry has higher bitmap_weight than the current highest */
+
+    if (afl->queue_buf[i]->bitmap_weight > afl->queue_buf[highest]->bitmap_weight) highest = i;
+  }
+
+  return highest;
+}
+
 /* select next queue entry based on alias algo - fast! */
 
 inline u32 select_next_queue_entry(afl_state_t *afl) {
+  return pst_fuzz_select_next_queue_entry(afl);
 
-  u32    s = rand_below(afl, afl->queued_items);
-  double p = rand_next_percent(afl);
+  //u32    s = rand_below(afl, afl->queued_items);
+  //double p = rand_next_percent(afl);
 
   /*
   fprintf(stderr, "select: p=%f s=%u ... p < prob[s]=%f ? s=%u : alias[%u]=%u"
@@ -56,8 +76,7 @@ inline u32 select_next_queue_entry(afl_state_t *afl) {
   afl->alias_probability[s] ? s : afl->alias_table[s]);
   */
 
-  return (p < afl->alias_probability[s] ? s : afl->alias_table[s]);
-
+  //return (p < afl->alias_probability[s] ? s : afl->alias_table[s]);
 }
 
 double compute_weight(afl_state_t *afl, struct queue_entry *q,
