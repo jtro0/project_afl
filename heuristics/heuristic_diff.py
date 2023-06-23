@@ -80,7 +80,7 @@ def main():
             weighted_funcs.append((func[0], func_freq, func[1]))
         else:
             # print(func_freq)
-        weighted_funcs.append((func[0], func_freq))
+            weighted_funcs.append((func[0], func_freq))
     chdir(orig_dir)
     # Filter all the functions without a commit history out, remove dups, and sort the relevant funcs by commits.
     weighted_funcs = list(filter(lambda x: x[1] != 0, weighted_funcs))

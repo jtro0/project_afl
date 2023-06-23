@@ -8,6 +8,7 @@ set -e
 
 git clone https://github.com/jtro0/project_afl.git "$FUZZER/repo_temp"
 # git -C "$FUZZER/repo" checkout 458eb0813a6f7d63eed97f18696bca8274533123
+git -C "$FUZZER/repo_temp" checkout test_suite
 # git clone
 cp -r $FUZZER/repo_temp/AFLplusplus $FUZZER/repo
 
