@@ -3,7 +3,7 @@ import re
 import subprocess
 from os.path import join, abspath
 from os import walk, chdir, getcwd
-import sys, chdir
+import sys
 
 #These are words that can't be in the ast dump.
 FORBIDDEN_WORDS = ['extern', 'implicit']
