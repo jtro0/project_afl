@@ -139,7 +139,7 @@ def do_stuff(input_format):
 
 	for entry in input_format:
 		func_name = entry[0]
-		weight = entry[0]
+		weight = entry[1]
 		func = getFunction(func_name)
 
 		if func == None:
