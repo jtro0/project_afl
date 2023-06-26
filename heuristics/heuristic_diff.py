@@ -87,8 +87,9 @@ def main():
     weighted_funcs = list(set(weighted_funcs))
     weighted_funcs = sorted(weighted_funcs, key=lambda x: x[1])
     
-    for func in weighted_funcs:
-        print(func)
+    # for func in weighted_funcs:
+    #     print(func)
+    print(weighted_funcs)
 
 if __name__ == "__main__":
     main()
