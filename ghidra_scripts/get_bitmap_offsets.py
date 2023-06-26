@@ -150,6 +150,9 @@ def do_stuff(input_format):
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
 
+  		if f_bitmap_weight_caller_tuple == None or len(f_bitmap_weight_caller_tuple) != 4:
+			print("WARNING: could not get callers with bitmap offset '{}'".format(func_name))
+		continue
 		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
 
 	no_dups = handle_duplicate_func_bitmap_weight_tuples(pre_result)
