@@ -146,7 +146,7 @@ def do_stuff(input_format):
 			print("WARNING: could not find function '{}'".format(func_name))
 			continue
 
-		weight = input_format[func_name]
+		# weight = input_format[func_name]
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
 
