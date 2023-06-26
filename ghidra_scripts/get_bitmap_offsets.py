@@ -1,6 +1,7 @@
 import ast
-import argparse
+# import argparse
 import json
+import os
 
 decompintf = ghidra.app.decompiler.DecompInterface()
 decompintf.openProgram(currentProgram)
@@ -165,20 +166,20 @@ def do_all_the_stuff(input_file, output_file):
 # do_all_the_stuff(args[0], args[1])
 
 # Parses the command line arguments.
-def parse_args():
-    parser = argparse.ArgumentParser(description='This script returns a list of tuples in format of (func_name, bitmap_offset, weight) where bitmap_offset is unique and no two function names should have the same bitmap offset otherwise we errors')
-    parser.add_argument('data', type=str,
-                    help='Path to file with list of (func_name, weight).')
-    return parser.parse_args()
+# def parse_args():
+#     parser = argparse.ArgumentParser(description='This script returns a list of tuples in format of (func_name, bitmap_offset, weight) where bitmap_offset is unique and no two function names should have the same bitmap offset otherwise we errors')
+#     parser.add_argument('data', type=str,
+#                     help='Path to file with list of (func_name, weight).')
+#     return parser.parse_args()
 
 def main():
-	args = parse_args()
-	with open(args.data, 'r') as f:
+	with open(data, 'r') as f:
 		out = f.read() # Assuming the whole file is just the list
 
 	original = ast.literal_eval(out)
 	for i in original:
 		print i
 
-if __name__ == "__main__":
-    main()
+# args = parse_args()
+data = os.environ['DATA_PATH']
+main()

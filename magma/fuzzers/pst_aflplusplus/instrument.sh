@@ -31,8 +31,9 @@ mkdir -p $FUZZER/headless
 
     "$MAGMA/build.sh"
     "$TARGET/build.sh"
+    export DATA_PATH=$TARGET/heuristics.txt
     for PROG in $OUT/*; do
-        $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+        $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
     done
 )
 
