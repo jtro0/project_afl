@@ -167,7 +167,7 @@ def output_data_to_binary(output_data):
 
 def dump_output_file(output_data, output_file):
 	with open(output_file, "wb") as f:
-		printf("Dumping bitmap weights: {}".format(output_data))
+		print("Dumping bitmap weights: {}".format(output_data))
 		f.write(output_data_to_binary(output_data))
 
 def do_all_the_stuff(input_file, output_file):
