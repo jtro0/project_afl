@@ -1237,8 +1237,28 @@ int main(int argc, char **argv_orig, char **envp) {
       case 'j':
       case 'J':
         afl->weights_file_name = optarg;
-        afl->weights_file = open(afl->weights_file_name, O_RDONLY);
-        if (afl->weights_file < 0) { PFATAL("Unable to open '%s'", afl->weights_file_name); }
+        afl->weights_file = fopen(afl->weights_file_name, "r");
+        if (afl->weights_file == NULL) { PFATAL("Unable to open '%s'", afl->weights_file_name); }
+        
+        /* Parse the weights file */
+
+        fseek(afl->weights_file, 0, SEEK_END);
+
+        afl->bitmap_weight_array_size = ftell(afl->weights_file) / sizeof(struct bitmap_weight_tuple);
+        afl->bitmap_weight_array = calloc(afl->bitmap_weight_array_size, sizeof(struct bitmap_weight_tuple));
+
+        fseek(afl->weights_file, 0, SEEK_SET);
+
+        if (fread(afl->bitmap_weight_array, sizeof(struct bitmap_weight_tuple), afl->bitmap_weight_array_size, afl->weights_file) != afl->bitmap_weight_array_size) {
+          PFATAL("Failed reading weight file");
+        }
+
+        OKF("Succesfully read weight file:");
+
+        for (u32 i = 0 ; i < afl->bitmap_weight_array_size ; i++) {
+          OKF("Bitmap offset: %u | Weight: %u", afl->bitmap_weight_array[i].bitmap_offset, afl->bitmap_weight_array[i].weight);
+        }
+
         break;
 
       default:
@@ -2627,6 +2647,8 @@ int main(int argc, char **argv_orig, char **envp) {
 
           We dont use AFL's weighted random selection thus we do not need to create alias table
 
+          However this function also calculates the test case's performance score thus we have to do this somewhere else.
+
           */
 
           //create_alias_table(afl);
@@ -2645,6 +2667,7 @@ int main(int argc, char **argv_orig, char **envp) {
       }
 
       skipped_fuzz = fuzz_one(afl);
+
   #ifdef INTROSPECTION
       ++afl->queue_cur->stats_selected;
 

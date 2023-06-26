@@ -611,7 +611,7 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
 
   q->bitmap_weight = pst_fuzz_calculate_bitmap_weight(afl, afl->fsrv.trace_bits); // PST-FUZZ
 
-  OKF("Calculated bitmap weight: %u\n", q->bitmap_weight); // PST-FUZZ
+  OKF("Calculated bitmap weight %u for test case with id %u\n", q->bitmap_weight, q->id); // PST-FUZZ
    
   q->handicap = handicap;
   q->cal_failed = 0;
