@@ -554,11 +554,15 @@ u8 fuzz_one_original(afl_state_t *afl) {
     afl->queue_cur->perf_score = orig_perf = perf_score =
         calculate_score(afl, afl->queue_cur);
 
-  if (unlikely(perf_score <= 0 && afl->active_items > 1)) {
 
+  /* PST-FUZZ we dont care... */
+
+  /*
+  if (unlikely(perf_score <= 0 && afl->active_items > 1)) {
     goto abandon_entry;
 
   }
+  */
 
   if (unlikely(afl->shm.cmplog_mode &&
                afl->queue_cur->colorized < afl->cmplog_lvl &&
@@ -3275,9 +3279,15 @@ static u8 mopt_common_fuzzing(afl_state_t *afl, MOpt_globals_t MOpt_globals) {
    * PERFORMANCE SCORE *
    *********************/
 
+  /* PST-FUZZ we dont create alias table anymore which is what calls calculate_score thus we call it here 
+      Not sure about the efficiency of this...
+  */
+
+  /*
   if (likely(!afl->old_seed_selection))
     orig_perf = perf_score = afl->queue_cur->perf_score;
   else
+  */
     orig_perf = perf_score = calculate_score(afl, afl->queue_cur);
 
   if (unlikely(perf_score <= 0 && afl->active_items > 1)) {

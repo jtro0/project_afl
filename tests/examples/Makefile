@@ -6,10 +6,10 @@ CFLAGS=-I. -O0
 LIBS=-lm
 
 all: $(DEPS)
-		$(AFL_CC) -o test $(CFLAGS) $^ $(LIBS)
+		$(AFL_CC) -O0 -o test $(CFLAGS) $^ $(LIBS)
 
 cov: $(DEPS)
-		$(CC) -o test_cov $(CFLAGS) -fprofile-arcs -ftest-coverage $^ $(LIBS)
+		$(CC) -O0 -o test_cov $(CFLAGS) -fprofile-arcs -ftest-coverage $^ $(LIBS)
 
 .PHONY: clean
 
