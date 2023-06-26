@@ -149,7 +149,8 @@ def do_stuff(input_format):
 
 def parse_input_file(input_file):
 	with open(input_file, "r") as f:
-		return 	original = ast.literal_eval(out)
+		data = f.read()
+		return ast.literal_eval(lines)
 
 
 def dump_output_file(output_data, output_file):

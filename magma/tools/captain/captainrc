@@ -77,7 +77,7 @@ FUZZERS=(pst_aflplusplus)
 # `fuzzer`. The `fuzzer` prefix is a fuzzer listed in the FUZZERS array
 # (default: all targets)
 # afl_TARGETS=(libpng libtiff libxml2)
-pst_aflplusplus_TARGETS=(libtiff)
+# pst_aflplusplus_TARGETS=(libtiff)
 
 # [fuzzer_target_PROGRAMS]: an array of program names (from
 # magma/targets/target/configrc) to use as execution drivers when fuzzing the
