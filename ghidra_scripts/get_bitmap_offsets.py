@@ -131,9 +131,11 @@ def do_stuff(input_format):
 
 	pre_result = []
 
-	for func_name in input_format:
+	for entry in input_format:
+		func_name = entry[0]
+		weight = entry[0]
 		func = getFunction(func_name)
-		weight = input_format[func_name]
+		# weight = input_format[func_name]
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
 
@@ -147,7 +149,8 @@ def do_stuff(input_format):
 
 def parse_input_file(input_file):
 	with open(input_file, "r") as f:
-		return json.load(f)
+		return 	original = ast.literal_eval(out)
+
 
 def dump_output_file(output_data, output_file):
 	with open(output_file, "w") as f:
@@ -172,14 +175,15 @@ def do_all_the_stuff(input_file, output_file):
 #                     help='Path to file with list of (func_name, weight).')
 #     return parser.parse_args()
 
-def main():
-	with open(data, 'r') as f:
-		out = f.read() # Assuming the whole file is just the list
+# def main():
+# 	with open(data, 'r') as f:
+# 		out = f.read() # Assuming the whole file is just the list
 
-	original = ast.literal_eval(out)
-	for i in original:
-		print i
+# 	original = ast.literal_eval(out)
+# 	for i in original:
+# 		print i
 
 # args = parse_args()
-data = os.environ['DATA_PATH']
-main()
+input_file = os.environ['DATA_PATH']
+do_all_the_stuff(input_file, os.environ['TARGET']+"/bitmap.txt")
+# main()
