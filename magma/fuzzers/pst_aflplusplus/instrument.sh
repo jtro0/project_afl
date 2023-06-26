@@ -19,6 +19,11 @@ export LIBS="$LIBS -lc++ -lc++abi $FUZZER/repo/utils/aflpp_driver/libAFLDriver.a
 # AFL++'s driver is compiled against libc++
 export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 
+python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo > $TARGET/heuristics.txt
+cat $TARGET/heuristics.txt
+
+mkdir -p $FUZZER/headless
+
 # Build the AFL-only instrumented version
 (
     export OUT="$OUT/afl"
@@ -26,6 +31,9 @@ export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 
     "$MAGMA/build.sh"
     "$TARGET/build.sh"
+    for PROG in $OUT/*; do
+        $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+    done
 )
 
 # Build the CmpLog instrumented version
@@ -39,15 +47,16 @@ export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 
     "$MAGMA/build.sh"
     "$TARGET/build.sh"
+    for PROG in $OUT/*; do
+        $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+    done
 )
 
-python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo > $TARGET/heuristics.txt
-cat $TARGET/heuristics.txt
 
-ls $FUZZER/ghidra
+
+# ls $FUZZER/ghidra
 # export GHIDRA_ROOT=$FUZZER/ghidra
-mkdir -p $FUZZER/headless
-$FUZZER/ghidra/support/analyzeHeadless $FUZZER/headless Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE
+
 
 # NOTE: We pass $OUT directly to the target build.sh script, since the artifact
 #       itself is the fuzz target. In the case of Angora, we might need to

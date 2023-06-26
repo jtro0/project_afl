@@ -19,10 +19,6 @@ run_limited()
 }
 export -f run_limited
 
-ls $FUZZER/ghidra
-# export GHIDRA_ROOT=$FUZZER/ghidra
-mkdir -p $FUZZER/headless
-$FUZZER/ghidra/support/analyzeHeadless $FUZZER/headless Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE
 
 args="${ARGS/@@/"'$1'"}"
 if [ -z "$args" ]; then
