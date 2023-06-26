@@ -161,7 +161,7 @@ def do_stuff(input_format):
 def parse_input_file(input_file):
 	with open(input_file, "r") as f:
 		data = f.read()
-		return ast.literal_eval(lines)
+		return ast.literal_eval(data)
 
 def output_data_to_binary(output_data):
 	result = bytes()
