@@ -2,6 +2,7 @@ import ast
 # import argparse
 import json
 import os
+import struct
 
 decompintf = ghidra.app.decompiler.DecompInterface()
 decompintf.openProgram(currentProgram)
@@ -64,7 +65,12 @@ def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0,
 
 		callers.append(caller_tuple)
 
-	return (func, get_all_bitmap_offsets_for_func(func), weight, callers)
+	bitmap_offsets = get_all_bitmap_offsets_for_func(func)
+
+	if len(bitmap_offsets) > 0:
+		return (func, bitmap_offsets, weight/len(bitmap_offsets), callers)
+	else:
+		return (func, bitmap_offsets, 0, callers)
 
 def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 	result = []
@@ -135,7 +141,12 @@ def do_stuff(input_format):
 		func_name = entry[0]
 		weight = entry[0]
 		func = getFunction(func_name)
-		# weight = input_format[func_name]
+
+		if func == None:
+			print("WARNING: could not find function '{}'".format(func_name))
+			continue
+
+		weight = input_format[func_name]
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
 
@@ -152,11 +163,18 @@ def parse_input_file(input_file):
 		data = f.read()
 		return ast.literal_eval(lines)
 
+def output_data_to_binary(output_data):
+	result = bytes()
+
+	for bitmap_offset in output_data:
+		result += struct.pack("<II", bitmap_offset, output_data[bitmap_offset])
+
+	return result
 
 def dump_output_file(output_data, output_file):
-	with open(output_file, "w") as f:
-		print(output_data)
-		json.dump(output_data, f)
+	with open(output_file, "wb") as f:
+		print("Dumping bitmap weights: {}".format(output_data))
+		f.write(output_data_to_binary(output_data))
 
 def do_all_the_stuff(input_file, output_file):
 	dump_output_file(do_stuff(parse_input_file(input_file)), output_file)
