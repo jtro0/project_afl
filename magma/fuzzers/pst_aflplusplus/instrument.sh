@@ -44,6 +44,11 @@ export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo > $TARGET/heuristics.txt
 cat $TARGET/heuristics.txt
 
+ls $FUZZER/ghidra
+# export GHIDRA_ROOT=$FUZZER/ghidra
+mkdir -p $FUZZER/headless
+$FUZZER/ghidra/support/analyzeHeadless $FUZZER/headless Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE
+
 # NOTE: We pass $OUT directly to the target build.sh script, since the artifact
 #       itself is the fuzz target. In the case of Angora, we might need to
 #       replace $OUT by $OUT/fast and $OUT/track, for instance.

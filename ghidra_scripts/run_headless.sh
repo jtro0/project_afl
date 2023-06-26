@@ -18,4 +18,4 @@ echo $INPUT_FILE
 echo $OUTPUT_FILE
 
 mkdir ghidra_scripts/headless
-$GHIDRA_ROOT/support/analyzeHeadless ghidra_scripts/headless Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE $OUTPUT_FILE
+$GHIDRA_ROOT/support/analyzeHeadless ghidra_scripts/headless Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE
