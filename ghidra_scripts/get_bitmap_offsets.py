@@ -207,5 +207,5 @@ def do_all_the_stuff(input_file, output_file):
 
 # args = parse_args()
 input_file = os.environ['DATA_PATH']
-do_all_the_stuff(input_file, os.environ['TARGET']+"/bitmap.txt")
+do_all_the_stuff(input_file, os.environ['OUT']+"/"+os.environ['PROG']+"_bitmap.txt")
 # main()
