@@ -58,7 +58,7 @@ def get_all_bitmap_offsets_for_func(func):
 
 	return result
 
-def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=10): #IMPORTANT : we might want to modify the max depth
+def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=3): #IMPORTANT : we might want to modify the max depth
 	if depth >= max_depth:
 		return []
 
