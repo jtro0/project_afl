@@ -28,5 +28,5 @@ make install
 cp "$WORK/bin/tiffcp" "$OUT/"
 $CXX $CXXFLAGS -std=c++11 -I$WORK/include \
     contrib/oss-fuzz/tiff_read_rgba_fuzzer.cc -o $OUT/tiff_read_rgba_fuzzer \
-    $WORK/lib/libtiffxx.a $WORK/lib/libtiff.a -O1 -lz -ljpeg -Wl,-Bstatic -llzma -Wl,-Bdynamic \
+    $WORK/lib/libtiffxx.a $WORK/lib/libtiff.a -O0 -lz -ljpeg -Wl,-Bstatic -llzma -Wl,-Bdynamic \
     $LDFLAGS $LIBS
