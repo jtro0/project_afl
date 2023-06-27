@@ -19,17 +19,8 @@ def parse_args():
                         and the file it got the function from. Otherwise only the first two''')
     return parser.parse_args()
 
-def parse_file(input_file):
-    lines = input_file.readlines()
-    filtered_lines = [line for line in lines if 'include' not in line]
-
-    # Write the filtered lines back to the file
-    with open('intermediate_file', 'w') as file:
-        file.writelines(filtered_lines)
-
 # This function creates an alternative version of the input file without #ifdefs.
 def create_anti_ifdef(input_file_path):
-    ifdef_depth = 0
     intermed_file = ''
     output_file_path = dirname(input_file_path) + '/intermediate_file.c'
 
