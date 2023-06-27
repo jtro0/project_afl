@@ -33,8 +33,13 @@ mkdir -p $FUZZER/headless
     "$TARGET/build.sh"
     export DATA_PATH=$TARGET/heuristics.txt
     for PROG in $OUT/*; do
-        export PROG=$PROG
-        $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
+        if [ -x $PROG ]
+        then
+            export PROG=$PROG
+            $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
+        else
+            echo "Not executable"
+        fi
     done
 )
 
@@ -49,9 +54,17 @@ mkdir -p $FUZZER/headless
 
     "$MAGMA/build.sh"
     "$TARGET/build.sh"
-    # for PROG in $OUT/*; do
-    #     $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
-    # done
+    export DATA_PATH=$TARGET/heuristics.txt
+
+    for PROG in $OUT/*; do
+        if [ -x $PROG ]
+        then
+            export PROG=$PROG
+            $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+        else
+            echo "Not executable"
+        fi
+    done
 )
 
 

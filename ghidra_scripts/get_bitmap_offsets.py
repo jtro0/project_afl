@@ -9,6 +9,10 @@ decompintf.openProgram(currentProgram)
 
 asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 
+it = currentProgram.getSymbolTable().getAllSymbols(False)
+for sym in it:
+	print sym
+
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
