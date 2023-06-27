@@ -9,9 +9,9 @@ decompintf.openProgram(currentProgram)
 
 asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 
-it = currentProgram.getSymbolTable().getAllSymbols(False)
-for sym in it:
-	print sym
+# it = currentProgram.getSymbolTable().getAllSymbols(False)
+# for sym in it:
+# 	print sym
 
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
@@ -142,7 +142,7 @@ def do_stuff(input_format):
 	pre_result = []
 
 	for entry in input_format:
-		func_name = entry[0]
+		func_name = "MAGMA_" + entry[0]
 		weight = entry[1]
 		func = getFunction(func_name)
 
