@@ -80,8 +80,9 @@ def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 	result = []
 
 	if func_tuple == None or len(func_tuple) != 4:
-			print("WARNING: could not get callers with bitmap offset")
+		print("WARNING: could not get callers with bitmap offset")
 		return result
+
 	func = func_tuple[0]
 	bitmap_offset = func_tuple[1]
 	weight = func_tuple[2]
