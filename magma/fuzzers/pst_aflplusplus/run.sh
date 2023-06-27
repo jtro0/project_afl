@@ -15,10 +15,10 @@ if nm "$OUT/afl/$PROGRAM" | grep -E '^[0-9a-f]+\s+[Ww]\s+main$'; then
     ARGS="-"
 fi
 
-echo "test"
-mkdir -p $FUZZER/headless
-$FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $OUT/afl/$PROGRAM -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
-echo "done"
+# echo "test"
+# mkdir -p $FUZZER/headless
+# $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $OUT/afl/$PROGRAM -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+# echo "done"
 
 mkdir -p "$SHARED/findings"
 
@@ -32,4 +32,4 @@ export AFL_DRIVER_DONT_DEFER=1
 
 "$FUZZER/repo/afl-fuzz" -i "$TARGET/corpus/$PROGRAM" -o "$SHARED/findings" \
     "${flag_cmplog[@]}" -d \
-    $FUZZARGS -- "$OUT/afl/$PROGRAM" $ARGS -j $OUT/${PROGRAM}_bitmap.txt" 2>&1
+    $FUZZARGS -- "$OUT/afl/$PROGRAM" $ARGS -j $OUT/${PROGRAM}_bitmap.txt 2>&1
