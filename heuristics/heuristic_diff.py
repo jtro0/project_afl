@@ -3,20 +3,22 @@ import re
 import subprocess
 from os.path import join, dirname
 from os import walk
+import datetime
+from datetime import datetime
 
 #These are words that can't be in the ast dump.
 FORBIDDEN_WORDS = ['extern', 'implicit']
 FUNC_NAME_PATTERN = r".*FunctionDecl.*\b(\w+)\b(?=\s*')"
 
-
-
 # Parses the command line arguments.
 def parse_args():
-    parser = argparse.ArgumentParser(description='This script returns a tuple of all function names in a git repository and the corresponding weights')
+    parser = argparse.ArgumentParser(description='This script returns a tuple of all function names in a git repository and the corresponding weights in accordance to the chosen heuristic')
     parser.add_argument('repo_path', type=str,
                     help='Absolute path to git repository.')
+    parser.add_argument('-H', '--heuristic', type=int, required=True, help="Give the heuristic number. 1: number of commits, 2: Time since last commit.")
     parser.add_argument('-p', '--path', action='store_true', help='''If flag is given the the program returns a pair of the function name, the frequency, 
-                        and the file it got the function from. Otherwise only the first two''')
+                        and the file it got the function from. Otherwise only the first two -- Only applicable for heurstic 1''')
+    parser.add_argument('-r', '--ranked', action='store_true', help='''If you want the rank of the functions instead of the weight give this flag''')
     return parser.parse_args()
 
 # This function creates an alternative version of the input file without #ifdefs.
@@ -81,29 +83,73 @@ def run_command(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     output = process.communicate()[0]
     output = output.decode('utf-8')
-
     return output
 
+# Expects a line with a date in the format git log gives, outputs a python datetime object encoded to an integer.
+def parse_date_line(line):
+    date_string = " ".join(line.split()[1:])
+    date_format = "%a %b %d %H:%M:%S %Y %z"
+    date = datetime.strptime(date_string, date_format)
+    encoded_date = int(date.timestamp())
+    return encoded_date
 
-def main():
-    args = parse_args()
+# Assumes sorted inputs
+def heuristic_to_rank(weighted_funcs, output_path):
+    counter = 0
+    ranked_funcs = []
+    for func in weighted_funcs:
+        counter += 1
+        if output_path:
+            ranked_funcs.append((func[0], counter, func[2]))
+        else:
+            ranked_funcs.append((func[0], counter))
+
+    return ranked_funcs
+
+# Uses the amount of commits per function.
+def heuristic_0(repo_path, output_paths, funcs):
     weighted_funcs = []
-
-    # Search for functions in the repo in repo_path.
-    funcs = search_funcs(args.repo_path)
     for func in funcs:
-        func_freq = int(run_command('cd ' + args.repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
-        if args.path:
+        func_freq = int(run_command('cd ' + repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
+        if output_paths:
             weighted_funcs.append((func[0], func_freq, func[1]))
         else:
             weighted_funcs.append((func[0], func_freq))
+    return weighted_funcs
+
+# Uses the date of the most recent commit.
+def heuristic_1(repo_path, output_paths, funcs):
+    weighted_funcs = []
+    for func in funcs:
+        date_line = run_command('cd ' + repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
+        if date_line != '':
+            date = parse_date_line(date_line)
+            if output_paths:
+                weighted_funcs.append((func[0], date, func[1]))
+            else:
+                weighted_funcs.append((func[0], date))
+    return weighted_funcs
+
+def main():
+    args = parse_args()
+
+    # Search for functions in the repo in repo_path.
+    funcs = search_funcs(args.repo_path)
+    if args.heuristic == 0:
+        output_funcs = heuristic_0(args.repo_path, args.path, funcs)
+    elif args.heuristic == 1:
+        output_funcs = heuristic_1(args.repo_path, args.path, funcs)
+    
 
     # Filter all the functions without a commit history out, remove dups, and sort the relevant funcs by commits.
-    weighted_funcs = list(filter(lambda x: x[1] != 0, weighted_funcs))
-    weighted_funcs = list(set(weighted_funcs))
-    weighted_funcs = sorted(weighted_funcs, key=lambda x: x[1])
-    
-    for func in weighted_funcs:
+    output_funcs = list(filter(lambda x: x[1] != 0, output_funcs))
+    output_funcs = list(set(output_funcs))
+    output_funcs = sorted(output_funcs, key=lambda x: x[1])
+    # Ranks the function on the weight gained from the heuristic.
+    if args.ranked:
+        output_funcs = heuristic_to_rank(output_funcs, args.path)
+
+    for func in output_funcs:
         print(func)
 
 if __name__ == "__main__":
