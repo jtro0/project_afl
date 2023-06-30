@@ -1,10 +1,14 @@
 import json
 import struct
+import ast
 
 decompintf = ghidra.app.decompiler.DecompInterface()
 decompintf.openProgram(currentProgram)
 
 asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
+
+num_const_bo = 0
+num_var_bo = 0
 
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
@@ -17,48 +21,49 @@ def get_highfunc_by_name(name):
 
 	return func_to_highfunc(f)
 
-def get_bitmap_offset(func): # TODO : change this function to return list of all bitmap offsets in this function
-	highfunc = func_to_highfunc(func)
-
-	firstBB = highfunc.getBasicBlocks()[0]
-
-	for op in firstBB.getIterator():
-		if op.opcode == op.PTRADD:
-			op_arg0_addr = op.getInput(0).getAddress()
-
-			if currentProgram.getSymbolTable().getGlobalSymbol("__afl_area_ptr", op_arg0_addr):
-				return op.getInput(1).getOffset()
-
-	#assert "Couldnt find __afl_area_ptr in first basic block" == False
-
-	return None
-
 def get_all_bitmap_offsets_for_func(func):
+	global num_const_bo
+	global num_var_bo
+
 	highfunc = func_to_highfunc(func)
 
 	result = []
 
 	for bb in highfunc.getBasicBlocks():
+		found_var_bitmap_offset = False
+
 		for op in bb.getIterator():
 			if op.opcode == op.PTRADD:
 				op_arg0_addr = op.getInput(0).getAddress()
 
 				if currentProgram.getSymbolTable().getGlobalSymbol("__afl_area_ptr", op_arg0_addr):
-					result.append(op.getInput(1).getOffset())
-					break
+					if op.getInput(1).isConstant():
+						num_const_bo += 1
+						result.append(op.getInput(1).getOffset())
+
+						if found_var_bitmap_offset:
+							print("INTERESTING: variable and constant bitmap offset in same bb. Decrementing num_var_bo")
+
+							num_var_bo -= 1
+
+						break
+					elif not found_var_bitmap_offset:
+						#print("WARNING: variable bitmap offset in bb @ {}".format(op.getParent()))
+						num_var_bo += 1
+						found_var_bitmap_offset = True
 
 	#assert "Couldnt find __afl_area_ptr in first basic block" == False
 
 	return result
 
-def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0, max_depth=10): #IMPORTANT : we might want to modify the max depth
-	if depth >= max_depth:
+def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, max_depth, depth=0): #IMPORTANT : we might want to modify the max depth
+	if depth >= max_depth or weight == 0:
 		return []
 
 	callers = []
 
 	for caller in func.getCallingFunctions(None):
-		caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(caller, weight/2, depth=depth+1, max_depth=max_depth)
+		caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(caller, weight/2, max_depth=max_depth, depth=depth+1)
 
 		callers.append(caller_tuple)
 
@@ -71,6 +76,10 @@ def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, depth=0,
 
 def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 	result = []
+
+	if func_tuple == None or len(func_tuple) != 4:
+		# print("WARNING: could not get callers with bitmap offset")
+		return result
 
 	func = func_tuple[0]
 	bitmap_offset = func_tuple[1]
@@ -88,6 +97,8 @@ def handle_duplicate_func_bitmap_weight_tuples(x):
 	seen = {} # Key : func ; Value : (bitmap_offsets, weight)
 
 	for t in x:
+		print("handle_duplicate_func_bitmap_weight_tuples {}".format(t))
+
 		func = t[0]
 		bitmap_offsets = t[1]
 		weight = t[2]
@@ -112,19 +123,38 @@ def handle_duplicate_func_bitmap_weight_tuples(x):
 def func_bitmap_weight_tuples_to_bitmap_weight_map(x):
 	result = {}
 
+	differing_duplicates = []
+
 	for t in x:
+		print("func_bitmap_weight_tuples_to_bitmap_weight_map {}".format(t))
 		bitmap_offsets = t[1]
 		weight = t[2]
 
 		for o in bitmap_offsets:
 			if o in result:
-				assert result[o] == weight
+				if result[o] != weight:
+					print("WARNING: result[{}] == {} failed ({} != {})".format(o, weight, result[o], weight))
+					differing_duplicates.append(o)
 			else:
 				result[o] = weight
 
+	print("REMOVING DIFFERING DUPLICATES ; # differing duplicates: {} | # total: {}".format(len(differing_duplicates), len(result)))
+
+	for o in differing_duplicates:
+		result.pop(o)
+
 	return result
 
-def do_stuff(input_format):
+def remove_null_weights(x):
+	result = {}
+
+	for o in x:
+		if x[o] != 0:
+			result[o] = x[o]
+
+	return result
+
+def do_stuff(input_format, max_depth):
 	"""
 	@param input_format for now is a dictionary with keys being the function names and values being their weights
 
@@ -134,28 +164,35 @@ def do_stuff(input_format):
 
 	pre_result = []
 
-	for func_name in input_format:
+	for entry in input_format:
+		func_name = entry[0]
+
 		func = getFunction(func_name)
 
 		if func == None:
 			print("WARNING: could not find function '{}'".format(func_name))
 			continue
 
-		weight = input_format[func_name]
+		print("FOUND FUNCTION {}".format(func_name))
 
-		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight)
+		weight = entry[1]
+
+		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, max_depth=max_depth)
 
 		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
 
 	no_dups = handle_duplicate_func_bitmap_weight_tuples(pre_result)
 
-	result = func_bitmap_weight_tuples_to_bitmap_weight_map(no_dups)
+	result_with_null_weights = func_bitmap_weight_tuples_to_bitmap_weight_map(no_dups)
+
+	result = remove_null_weights(result_with_null_weights)
 
 	return result
 
 def parse_input_file(input_file):
 	with open(input_file, "r") as f:
-		return json.load(f)
+		data = f.read()
+		return ast.literal_eval(data)
 
 def output_data_to_binary(output_data):
 	result = bytes()
@@ -170,13 +207,15 @@ def dump_output_file(output_data, output_file):
 		print("Dumping bitmap weights: {}".format(output_data))
 		f.write(output_data_to_binary(output_data))
 
-def do_all_the_stuff(input_file, output_file):
-	dump_output_file(do_stuff(parse_input_file(input_file)), output_file)
+def do_all_the_stuff(input_file, output_file, max_depth):
+	dump_output_file(do_stuff(parse_input_file(input_file), max_depth), output_file)
 
 args = getScriptArgs()
 
-if len(args) != 2:
-    print("Parameters: <weight map input file> <bitmap weight output file>")
+if len(args) != 3:
+    print("Parameters: <weight map input file> <bitmap weight output file> <max depth for function calls>")
     exit(-1)
 
-do_all_the_stuff(args[0], args[1])
+do_all_the_stuff(args[0], args[1], args[2])
+
+print("num_var_bo: {} | num_const_bo: {}".format(num_var_bo, num_const_bo))
