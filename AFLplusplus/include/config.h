@@ -215,6 +215,12 @@
 #define SKIP_NFAV_OLD_PROB 95   /* ...no new favs, cur entry already fuzzed */
 #define SKIP_NFAV_NEW_PROB 75   /* ...no new favs, cur entry not fuzzed yet */
 
+/* PST-FUZZ
+   
+   Probability of selecting random queue entry instead of the one with the highest bitmap score */
+
+#define PST_FUZZ_SELECT_RANDOM_PROB 10
+
 /* Splicing cycle count: */
 
 #define SPLICE_CYCLES 15
