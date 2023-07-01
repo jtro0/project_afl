@@ -75,7 +75,7 @@ def main():
     # Search for functions in the repo in repo_path.
     funcs = search_funcs(".")
     for func in funcs:
-        func_freq = int(run_command('cd ' + args.repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
+        func_freq = int(run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
         if args.path:
             weighted_funcs.append((func[0], func_freq, func[1]))
         else:

@@ -9,10 +9,13 @@ decompintf.openProgram(currentProgram)
 
 asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 
-# it = currentProgram.getSymbolTable().getAllSymbols(False)
-# for sym in it:
-# 	print sym
-
+it = currentProgram.getSymbolTable().getAllSymbols(False)
+with open("all_sym.txt", "w") as f:
+	for sym in it:
+		f.write(str(sym)+'\n')
+  
+f = open("all_not_found.txt", "w")
+fi = open("all_found.txt", "w")
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
@@ -44,6 +47,8 @@ def get_all_bitmap_offsets_for_func(func):
 	highfunc = func_to_highfunc(func)
 
 	result = []
+	if highfunc == None:
+		return result
 
 	for bb in highfunc.getBasicBlocks():
 		for op in bb.getIterator():
@@ -152,7 +157,10 @@ def do_stuff(input_format):
 
 		if func == None:
 			print("WARNING: could not find function '{}'".format(func_name))
+			f.write(func_name + '\n')
 			continue
+		else:
+			fi.write(func_name+'\n')
 
 		# weight = input_format[func_name]
 
