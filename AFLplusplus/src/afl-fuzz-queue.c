@@ -44,19 +44,28 @@ void run_afl_custom_queue_new_entry(afl_state_t *afl, struct queue_entry *q,
 #endif
 
 u32 pst_fuzz_select_next_queue_entry(afl_state_t *afl) {
-  /* Loop over all UNFUZZED queue entries and select the entry which has the maximum bitmap_weight */
+  if (unlikely(rand_below(afl, 100) < PST_FUZZ_SELECT_RANDOM_PROB)) {
+    u32 randomly_selected;
+
+    do {
+      randomly_selected = rand_below(afl, afl->queued_items);
+    } while (unlikely(afl->queue_buf[randomly_selected] == NULL || afl->queue_buf[randomly_selected]->disabled));
+
+    return randomly_selected;
+  }
 
   u32 highest = 0; // IMPORTANT TODO : queue_buf can not be empty right???
   u32 i = 0;
 
   for (i = 0; i < afl->queued_items && likely(afl->queue_buf[i]); i++) {
-    /* Skip fuzzed entries ONLY IF there are non fuzzed entries */
+    /* Check if this entry has higher bitmap_weight than the current highest 
+       AND if its fuzz_level is lower or equal to the current highest fuzz level (DOES THIS MAKE SENSE?)
+       AND if the entry isnt disabled
+    */
 
-    if (likely(afl->pending_not_fuzzed) && afl->queue_buf[i]->fuzz_level) continue;
-    
-    /* Check if this entry has higher bitmap_weight than the current highest */
-
-    if (afl->queue_buf[i]->bitmap_weight > afl->queue_buf[highest]->bitmap_weight) highest = i;
+    if ((afl->queue_buf[i]->bitmap_weight > afl->queue_buf[highest]->bitmap_weight) 
+      && (afl->queue_buf[i]->fuzz_level <= afl->queue_buf[highest]->fuzz_level)
+      && likely(!afl->queue_buf[i]->disabled)) highest = i;
   }
 
   return highest;
