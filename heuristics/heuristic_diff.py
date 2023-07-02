@@ -111,7 +111,7 @@ def heuristic_to_rank(weighted_funcs, output_path):
 def heuristic_0(repo_path, output_paths, funcs):
     weighted_funcs = []
     orig_dir = getcwd()
-    chdir(join(orig_dir, args.repo_path))
+    chdir(join(orig_dir, repo_path))
 
     # Search for functions in the repo in repo_path.
     funcs = search_funcs(".")
@@ -130,7 +130,7 @@ def heuristic_0(repo_path, output_paths, funcs):
 def heuristic_1(repo_path, output_paths, funcs):
     weighted_funcs = []
     orig_dir = getcwd()
-    chdir(join(orig_dir, args.repo_path))
+    chdir(join(orig_dir, repo_path))
 
     for func in funcs:
         date_line = run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
@@ -164,5 +164,5 @@ def main():
 
     print(output_funcs)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+main()
