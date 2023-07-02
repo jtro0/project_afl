@@ -2,8 +2,8 @@
 set -e
 
 # Instrument
-export CC="$FUZZER/afl-clang-fast"
-export CXX="$FUZZER/afl-clang-fast++"
+export CC="$FUZZER/afl-clang-lto"
+export CXX="$FUZZER/afl-clang-lto++"
 export AS="llvm-as"
 
 # export LIBS="$LIBS -lc++ -lc++abi $FUZZER/utils/aflpp_driver/libAFLDriver.a"

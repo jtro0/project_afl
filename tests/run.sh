@@ -24,6 +24,6 @@ echo $OUT
 mkdir -p $OUT
 sh pre-fuzz/instrument.sh
 
-export DATA_PATH= $TARGET/heuristics.txt
-export PROG=$(basename $TARGET)
-$GHIDRA/support/analyzeHeadless $GHIDRA_WORKDIR/headless Scripting -import $TARGET/out/afl/libpng_read_fuzzer -overwrite -scriptPath $GHIDRA_WORKDIR -postScript get_bitmap_offsets.py
+# export DATA_PATH= $TARGET/heuristics.txt
+# export PROG=$(basename $TARGET)
+# $GHIDRA/support/analyzeHeadless $GHIDRA_WORKDIR/headless Scripting -import $TARGET/out/afl/libpng_read_fuzzer -overwrite -scriptPath $GHIDRA_WORKDIR -postScript get_bitmap_offsets.py

@@ -10,16 +10,16 @@ set -e
 # - env CFLAGS and CXXFLAGS must be set to link against Magma instrumentation
 ##
 
-export CC="$FUZZER/repo/afl-clang-fast"
-export CXX="$FUZZER/repo/afl-clang-fast++"
+export CC="$FUZZER/repo/afl-clang-lto"
+export CXX="$FUZZER/repo/afl-clang-lto++"
 export AS="llvm-as"
 
 export LIBS="$LIBS -lc++ -lc++abi $FUZZER/repo/utils/aflpp_driver/libAFLDriver.a"
 
 # AFL++'s driver is compiled against libc++
-export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+export CXXFLAGS="$CXXFLAGS -O1 -stdlib=libc++"
 
-python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo > $TARGET/heuristics.txt
+python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo -H 1 > $TARGET/heuristics.txt
 cat $TARGET/heuristics.txt
 
 mkdir -p $FUZZER/headless
@@ -27,7 +27,7 @@ mkdir -p $FUZZER/headless
 # Build the AFL-only instrumented version
 (
     export OUT="$OUT/afl"
-    export LDFLAGS="$LDFLAGS -L$OUT"
+    export LDFLAGS="$LDFLAGS -static -L$OUT"
 
     "$MAGMA/build.sh"
     "$TARGET/build.sh"
@@ -36,7 +36,10 @@ mkdir -p $FUZZER/headless
         if [ -x $PROG ]
         then
             export PROG=$PROG
-            $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
+            # $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
+            
+            export GHIDRA_ROOT=$FUZZER/ghidra/ghidra_10.3.1_PUBLIC 
+            sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $TARGET/heuristics.txt $TARGET/output.txt 10
         else
             echo "Not executable"
         fi
@@ -47,7 +50,7 @@ mkdir -p $FUZZER/headless
 
 (
     export OUT="$OUT/cmplog"
-    export LDFLAGS="$LDFLAGS -L$OUT"
+    export LDFLAGS="$LDFLAGS -static -L$OUT"
     # export CFLAGS="$CFLAGS -DMAGMA_DISABLE_CANARIES"
 
     export AFL_LLVM_CMPLOG=1
@@ -60,7 +63,9 @@ mkdir -p $FUZZER/headless
         if [ -x $PROG ]
         then
             export PROG=$PROG
-            $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+            # $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py $TARGET/heuristics.txt
+            export GHIDRA_ROOT=$FUZZER/ghidra/ghidra_10.3.1_PUBLIC 
+            sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $TARGET/heuristics.txt $TARGET/output.txt 10
         else
             echo "Not executable"
         fi

@@ -2,9 +2,9 @@ import argparse
 import re
 import subprocess
 from os.path import join, abspath, dirname
-from os import walk
+from os import walk, getcwd
 import datetime
-from datetime import datetime, getcwd
+from datetime import datetime
 import sys
 
 #These are words that can't be in the ast dump.

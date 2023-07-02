@@ -6,7 +6,7 @@ for TARGET in $TARGETS/*; do
     if [ -d "${TARGET}" ]; then
         # python3 $heur $TARGET/repo
         # mkdir -p $TARGET/heuristics
-        python3 $HEURISTIC $TARGET/repo > $TARGET/heuristics.txt
+        python3 $HEURISTIC $TARGET/repo -H 1 > $TARGET/heuristics.txt
     fi
 done
 
