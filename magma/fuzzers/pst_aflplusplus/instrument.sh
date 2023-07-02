@@ -19,7 +19,7 @@ export LIBS="$LIBS -lc++ -lc++abi $FUZZER/repo/utils/aflpp_driver/libAFLDriver.a
 # AFL++'s driver is compiled against libc++
 export CXXFLAGS="$CXXFLAGS -O1 -stdlib=libc++"
 
-python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo -H 1 > $TARGET/heuristics.txt
+python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo -H 0 > $TARGET/heuristics.txt
 cat $TARGET/heuristics.txt
 
 mkdir -p $FUZZER/headless

@@ -128,7 +128,7 @@ def heuristic_0(repo_path, output_paths, funcs):
 def heuristic_1(repo_path, output_paths, funcs):
     weighted_funcs = []
     for func in funcs:
-        date_line = run_command('cd ' + repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
+        date_line = run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
         if date_line != '':
             date = parse_date_line(date_line)
             if output_paths:
