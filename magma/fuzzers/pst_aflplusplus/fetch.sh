@@ -24,8 +24,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 }
 EOF
 
-wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.1_build/ghidra_10.3.1_PUBLIC_20230614.zip -O $FUZZER/ghidra.zip &> /dev/null
-unzip $FUZZER/ghidra.zip -d $FUZZER/ghidra &> /dev/null
+wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.1_build/ghidra_10.3.1_PUBLIC_20230614.zip -O $FUZZER/ghidra.zip
+unzip $FUZZER/ghidra.zip -d $FUZZER/ghidra
 
 # patch -p1 -d "$FUZZER/repo" << EOF
 # --- a/utils/aflpp_driver/aflpp_driver.c

@@ -1,9 +1,12 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
+ENV TZ=Europe/Amsterdam
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y tzdata sudo
 # TODO remove sudo for user "magma" to avoid unwanted priv escalation from
 # other attack vectors.
 
-RUN apt-get update && apt-get install -y sudo
+# RUN apt-get update && apt-get install -y sudo
 
 ## Magma directory hierarchy
 # magma_root is relative to the docker-build's working directory

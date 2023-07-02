@@ -31,9 +31,9 @@ fi
 
 export REAL_CC=gcc 
 export REAL_CXX=g++
-export LLVM_CONFIG=llvm-config-14
+export LLVM_CONFIG=llvm-config-11
 
-cd "$FUZZER"
+cd "$FUZZER/repo"
 make -j$(nproc) all || exit 1
 make -C utils/aflpp_driver || exit 1
 
