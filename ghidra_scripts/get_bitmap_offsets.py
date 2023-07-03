@@ -13,13 +13,13 @@ asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 num_const_bo = 0
 num_var_bo = 0
 
-it = currentProgram.getSymbolTable().getAllSymbols(False)
-with open("all_sym.txt", "w") as f:
-	for sym in it:
-		f.write(str(sym)+'\n')
+# it = currentProgram.getSymbolTable().getAllSymbols(False)
+# with open("all_sym.txt", "w") as f:
+# 	for sym in it:
+# 		f.write(str(sym)+'\n')
   
-f = open("all_not_found.txt", "w")
-fi = open("all_found.txt", "w")
+# f = open("all_not_found.txt", "w")
+# fi = open("all_found.txt", "w")
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
@@ -186,10 +186,10 @@ def do_stuff(input_format, max_depth):
 
 		if func == None:
 			print("WARNING: could not find function '{}'".format(func_name))
-			f.write(func_name + '\n')
+			# f.write(func_name + '\n')
 			continue
-		else:
-			fi.write(func_name+'\n')
+		# else:
+		# 	fi.write(func_name+'\n')
 
 		print("FOUND FUNCTION {}".format(func_name))
 
