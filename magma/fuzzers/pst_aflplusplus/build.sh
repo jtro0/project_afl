@@ -23,18 +23,26 @@ set -e
 
 
 # Build fuzzer
-if [ ! -d "$FUZZER" ]; then
-    echo "Fuzzer folder does not exist"
-    echo $FUZZER
-    exit 1
-fi
+# if [ ! -d "$FUZZER" ]; then
+#     echo "Fuzzer folder does not exist"
+#     echo $FUZZER
+#     exit 1
+# fi
 
-export REAL_CC=gcc 
-export REAL_CXX=g++
-export LLVM_CONFIG=llvm-config-11
+# export REAL_CC=gcc 
+# export REAL_CXX=g++
+# export LLVM_CONFIG=llvm-config-14
+
+# cd "$FUZZER/repo"
+# make -j$(nproc) all || exit 1
+# make -C utils/aflpp_driver || exit 1
 
 cd "$FUZZER/repo"
-make -j$(nproc) all || exit 1
+export CC=clang
+export CXX=clang++
+export AFL_NO_X86=1
+export PYTHON_INCLUDE=/
+make -j$(nproc) || exit 1
 make -C utils/aflpp_driver || exit 1
 
 mkdir -p "$OUT/afl" "$OUT/cmplog"
