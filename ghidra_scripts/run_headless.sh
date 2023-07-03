@@ -18,5 +18,5 @@ echo $SCRIPT
 echo $INPUT_FILE
 echo $OUTPUT_FILE
 
-mkdir ghidra_scripts/headless
+# mkdir ghidra_scripts/headless
 $GHIDRA_ROOT/support/analyzeHeadless $GHIDRA_WORKDIR Scripting -import $PROGRAM -overwrite -postScript $SCRIPT $INPUT_FILE $OUTPUT_FILE $MAX_DEPTH
