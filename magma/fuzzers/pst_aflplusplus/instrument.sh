@@ -119,11 +119,16 @@ export LIBS="$LIBS -lstdc++ $FUZZER/repo/utils/aflpp_driver/libAFLDriver.a"
 #     export AFL_LLVM_MAP_DYNAMIC=1
 # fi
 
-python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo -H 0 > $TARGET/heuristics.txt
-cat $TARGET/heuristics.txt
+export PST_OUT=$OUT/pst
+mkdir -p $PST_OUT
+
+python3 $FUZZER/repo_temp/heuristics/heuristic_diff.py $TARGET/repo -H 0 > $PST_OUT/heuristics.txt
+cat $PST_OUT/heuristics.txt
 
 export GHIDRA_WORKDIR=$FUZZER/headless
 mkdir -p $GHIDRA_WORKDIR
+
+export CONFIG_FLAGS="--disable-shared"
 
 # Build the AFL-only instrumented version
 (
@@ -131,7 +136,7 @@ mkdir -p $GHIDRA_WORKDIR
     export LDFLAGS="$LDFLAGS -L$OUT"
 
     "$MAGMA/build.sh"
-    export LDFLAGS="$LDFLAGS -O1 -static"
+    # export LDFLAGS="$LDFLAGS -O1 -static"
     "$TARGET/build.sh"
 
     export DATA_PATH=$TARGET/heuristics.txt
@@ -142,7 +147,7 @@ mkdir -p $GHIDRA_WORKDIR
             # $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
             
             export GHIDRA_ROOT=$FUZZER/ghidra/ghidra_10.3.1_PUBLIC 
-            sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $TARGET/heuristics.txt $OUT/output_bitmap 10
+            sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $PST_OUT/heuristics.txt $PST_OUT/output_bitmap 10
         else
             echo "Not executable"
         fi
@@ -158,7 +163,7 @@ mkdir -p $GHIDRA_WORKDIR
     export AFL_LLVM_CMPLOG=1
 
     "$MAGMA/build.sh"
-    export LDFLAGS="$LDFLAGS -O1 -static"
+    export LDFLAGS="$LDFLAGS -static"
     "$TARGET/build.sh"
 
     export DATA_PATH=$TARGET/heuristics.txt
@@ -168,8 +173,8 @@ mkdir -p $GHIDRA_WORKDIR
             export PROG=$PROG
             # $FUZZER/ghidra/ghidra_10.3.1_PUBLIC/support/analyzeHeadless $FUZZER/headless Scripting -import $PROG -overwrite -scriptPath $FUZZER/repo_temp/ghidra_scripts -postScript get_bitmap_offsets.py 
             
-            export GHIDRA_ROOT=$FUZZER/ghidra/ghidra_10.3.1_PUBLIC 
-            sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $TARGET/heuristics.txt $OUT/output_bitmap 10
+            # export GHIDRA_ROOT=$FUZZER/ghidra/ghidra_10.3.1_PUBLIC 
+            # sh $FUZZER/repo_temp/ghidra_scripts/run_headless.sh $PROG $FUZZER/repo_temp/ghidra_scripts/get_bitmap_offsets.py $PST_OUT/heuristics.txt $PST_OUT/output_bitmap 10
         else
             echo "Not executable"
         fi

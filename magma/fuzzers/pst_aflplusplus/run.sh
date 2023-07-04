@@ -32,4 +32,4 @@ export AFL_DRIVER_DONT_DEFER=1
 
 "$FUZZER/repo/afl-fuzz" -i "$TARGET/corpus/$PROGRAM" -o "$SHARED/findings" \
     "${flag_cmplog[@]}" -d \
-    $FUZZARGS  -j $OUT/afl/output_bitmap -- "$OUT/afl/$PROGRAM" $ARGS 2>&1
+    $FUZZARGS  -j $OUT/pst/output_bitmap -- "$OUT/afl/$PROGRAM" $ARGS 2>&1

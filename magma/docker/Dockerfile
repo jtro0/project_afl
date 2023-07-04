@@ -1,6 +1,5 @@
 FROM ubuntu:18.04
 
-# RUN apt-get update && apt-get install -y tzdata sudo
 # TODO remove sudo for user "magma" to avoid unwanted priv escalation from
 # other attack vectors.
 
@@ -53,8 +52,7 @@ RUN mkdir -p ${FUZZER} && chown magma:magma ${FUZZER}
 COPY --chown=magma:magma ${magma_root}/${fuzzer_path} ${FUZZER}/
 RUN ${FUZZER}/preinstall.sh
 USER magma:magma
-RUN ${FUZZER}/fetch.sh
-RUN ${FUZZER}/build.sh
+RUN ${FUZZER}/fetch.sh && ${FUZZER}/build.sh
 
 ARG target_name
 ARG target_path=targets/${target_name}
@@ -64,8 +62,7 @@ RUN mkdir -p ${TARGET} && chown magma:magma ${TARGET}
 COPY --chown=magma:magma ${magma_root}/${target_path} ${TARGET}/
 RUN ${TARGET}/preinstall.sh
 USER magma:magma
-RUN ${TARGET}/fetch.sh
-RUN ${MAGMA}/apply_patches.sh
+RUN ${TARGET}/fetch.sh && ${MAGMA}/apply_patches.sh
 
 ## Configuration parameters
 ARG isan
