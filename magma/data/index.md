@@ -1,12 +1,7 @@
 ---
 title: Report
 ---
-
-
 {% capture template %}
-
-
-
 <div class="section">
     <h1>Experiment Configuration</h1>
     <ul class="browser-default">
@@ -22,7 +17,6 @@ title: Report
         <li><a href="targets/libpng.html">libpng</a></li>  
     </ul>
 </div>
-
 <div class="section">
     <h1>Evaluated Fuzzers</h1>
     <p>The fuzzers used in this evaluation are listed below:</p>
@@ -31,11 +25,9 @@ title: Report
         <li><a href="fuzzers/pst_aflplusplus.html">pst_aflplusplus</a></li>
     </ul>
 </div>
-
 <!--
 EXPERIMENT PARAMETERS WILL BE LISTED HERE
 -->
-
 <div class="section">
     <h1>Experiment Summary</h1>
     <div id="bugs-triggered">
@@ -219,7 +211,5 @@ EXPERIMENT PARAMETERS WILL BE LISTED HERE
 </table>
     </div>
 </div>
-
-
 {% endcapture %}
 {{ template | replace: '    ', ''}}
