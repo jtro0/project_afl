@@ -14,15 +14,15 @@ title: Report
     <h1>Fuzz Targets</h1>
     <p>This report summarizes the results of fuzzing the following targets:</p>
     <ul id="target-list" class="browser-default">
-        <li><a href="targets/libpng.html">libpng</a></li>  
+        <li><a href="targets/libpng.md">libpng</a></li>  
     </ul>
 </div>
 <div class="section">
     <h1>Evaluated Fuzzers</h1>
     <p>The fuzzers used in this evaluation are listed below:</p>
     <ul id="fuzzer-list" class="browser-default">
-        <li><a href="fuzzers/afl.html">afl</a></li>
-        <li><a href="fuzzers/pst_aflplusplus.html">pst_aflplusplus</a></li>
+        <li><a href="fuzzers/afl.md">afl</a></li>
+        <li><a href="fuzzers/pst_aflplusplus.md">pst_aflplusplus</a></li>
     </ul>
 </div>
 <!--
