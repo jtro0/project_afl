@@ -7,7 +7,7 @@
 ###
 
 # WORKDIR: path to directory where shared volumes will be created
-WORKDIR=./workdir_poppler
+WORKDIR=./workdir_many
 
 # REPEAT: number of campaigns to run per program (per fuzzer)
 REPEAT=2
@@ -30,7 +30,7 @@ REPEAT=2
 # [TIMEOUT]: time to run each campaign. This variable supports one-letter
 # suffixes to indicate duration (s: seconds, m: minutes, h: hours, d: days)
 # (default: 1m)
-TIMEOUT=1h
+TIMEOUT=4h
 
 # [POLL]: time (in seconds) between polls (default: 5)
 POLL=5
@@ -72,16 +72,18 @@ POC_EXTRACT=1
 
 # FUZZERS: an array of fuzzer names (from magma/fuzzers/*) to evaluate
 # FUZZERS=(afl aflfast moptafl aflplusplus fairfuzz honggfuzz)
-FUZZERS=(pst_aflplusplus aflplusplus afl)
+FUZZERS=(afl)
 
 # [fuzzer_TARGETS]: an array of target names (from magma/targets/*) to fuzz with
 # `fuzzer`. The `fuzzer` prefix is a fuzzer listed in the FUZZERS array
 # (default: all targets)
-# afl_TARGETS=(libpng libtiff libxml2)
-pst_aflplusplus_TARGETS=(poppler)
-aflplusplus_TARGETS=(poppler)
-afl_TARGETS=(poppler)
-honggfuzz_TARGETS=(poppler)
+afl_TARGETS=(libpng libtiff libxml2)
+# pst_aflplusplus_TARGETS=(libpng libtiff libxml2 lua php)
+# afl_TARGETS=(libpng libtiff libxml2 lua php)
+# afl_asan_TARGETS=(libpng libtiff libxml2)
+# aflplusplus_TARGETS=(libpng libtiff libxml2 lua php)
+# aflplusplus_lto_asan_TARGETS=(libpng libtiff libxml2 lua php)
+
 # [fuzzer_target_PROGRAMS]: an array of program names (from
 # magma/targets/target/configrc) to use as execution drivers when fuzzing the
 # `target`
