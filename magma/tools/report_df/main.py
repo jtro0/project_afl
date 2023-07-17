@@ -38,7 +38,7 @@ def configure_verbosity(level):
 def main():
     args = parse_args()
     configure_verbosity(args.verbose)
-    bd = BenchmarkData(args.json, config={'duration': 6 * 60 * 60, 'trials': 2})
+    bd = BenchmarkData(args.json, config={'duration': 8 * 60 * 60, 'trials': 10})
     generate_report(bd, args.outdir)
 
 if __name__ == '__main__':
