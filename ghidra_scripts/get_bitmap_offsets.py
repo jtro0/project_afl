@@ -1,4 +1,7 @@
+import ast
+# import argparse
 import json
+import os
 import struct
 import ast
 
@@ -10,6 +13,13 @@ asm = ghidra.app.plugin.assembler.Assemblers.getAssembler(currentProgram)
 num_const_bo = 0
 num_var_bo = 0
 
+# it = currentProgram.getSymbolTable().getAllSymbols(False)
+# with open("all_sym.txt", "w") as f:
+# 	for sym in it:
+# 		f.write(str(sym)+'\n')
+  
+# f = open("all_not_found.txt", "w")
+# fi = open("all_found.txt", "w")
 def func_to_highfunc(func):
 	results = decompintf.decompileFunction(func, 30, None)
 	highfunc = results.getHighFunction()
@@ -28,6 +38,9 @@ def get_all_bitmap_offsets_for_func(func):
 	highfunc = func_to_highfunc(func)
 
 	result = []
+	if highfunc == None:
+		print("highfunc is none")
+		return result
 
 	for bb in highfunc.getBasicBlocks():
 		found_var_bitmap_offset = False
@@ -48,7 +61,7 @@ def get_all_bitmap_offsets_for_func(func):
 
 						break
 					elif not found_var_bitmap_offset:
-						#print("WARNING: variable bitmap offset in bb @ {}".format(op.getParent()))
+						print("WARNING: variable bitmap offset in bb @ {}".format(op.getParent()))
 						num_var_bo += 1
 						found_var_bitmap_offset = True
 
@@ -70,15 +83,17 @@ def get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, max_dept
 	bitmap_offsets = get_all_bitmap_offsets_for_func(func)
 
 	if len(bitmap_offsets) > 0:
-		return (func, bitmap_offsets, weight/len(bitmap_offsets), callers)
+		return [func, bitmap_offsets, weight/len(bitmap_offsets), callers]
 	else:
-		return (func, bitmap_offsets, 0, callers)
+		print("bitmap_offsets is 0? " +str(bitmap_offsets))
+		return [func, bitmap_offsets, 0, callers]
 
 def unroll_func_weight_bitmap_caller_tuple_recursive(func_tuple):
 	result = []
 
 	if func_tuple == None or len(func_tuple) != 4:
-		# print("WARNING: could not get callers with bitmap offset")
+		print("WARNING: could not get callers with bitmap offset")
+  		print(func_tuple)
 		return result
 
 	func = func_tuple[0]
@@ -171,16 +186,20 @@ def do_stuff(input_format, max_depth):
 
 		if func == None:
 			print("WARNING: could not find function '{}'".format(func_name))
+			# f.write(func_name + '\n')
 			continue
+		# else:
+		# 	fi.write(func_name+'\n')
 
 		print("FOUND FUNCTION {}".format(func_name))
 
 		weight = entry[1]
+		print("weight " + str(weight))
 
 		f_bitmap_weight_caller_tuple = get_callers_with_bitmap_offsets_and_weights_recursive(func, weight, max_depth=max_depth)
 
 		pre_result += unroll_func_weight_bitmap_caller_tuple_recursive(f_bitmap_weight_caller_tuple)
-
+		print("pre-result " + str(pre_result[:1]))
 	no_dups = handle_duplicate_func_bitmap_weight_tuples(pre_result)
 
 	result_with_null_weights = func_bitmap_weight_tuples_to_bitmap_weight_map(no_dups)
@@ -211,6 +230,9 @@ def do_all_the_stuff(input_file, output_file, max_depth):
 	dump_output_file(do_stuff(parse_input_file(input_file), max_depth), output_file)
 
 args = getScriptArgs()
+
+import sys
+print(sys.version)
 
 if len(args) != 3:
     print("Parameters: <weight map input file> <bitmap weight output file> <max depth for function calls>")

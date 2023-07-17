@@ -1,10 +1,11 @@
 import argparse
 import re
 import subprocess
-from os.path import join, dirname
-from os import walk
+from os.path import join, abspath, dirname
+from os import walk, getcwd, chdir
 import datetime
 from datetime import datetime
+import sys
 
 #These are words that can't be in the ast dump.
 FORBIDDEN_WORDS = ['extern', 'implicit']
@@ -109,25 +110,37 @@ def heuristic_to_rank(weighted_funcs, output_path):
 # Uses the amount of commits per function.
 def heuristic_0(repo_path, output_paths, funcs):
     weighted_funcs = []
+    orig_dir = getcwd()
+    chdir(join(orig_dir, repo_path))
+
+    # Search for functions in the repo in repo_path.
+    funcs = search_funcs(".")
     for func in funcs:
-        func_freq = int(run_command('cd ' + repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
+        func_freq = int(run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -c commit').strip())
         if output_paths:
             weighted_funcs.append((func[0], func_freq, func[1]))
         else:
+            # print(func_freq)
             weighted_funcs.append((func[0], func_freq))
+    chdir(orig_dir)
+
     return weighted_funcs
 
 # Uses the date of the most recent commit.
 def heuristic_1(repo_path, output_paths, funcs):
     weighted_funcs = []
+    orig_dir = getcwd()
+    chdir(join(orig_dir, repo_path))
+
     for func in funcs:
-        date_line = run_command('cd ' + repo_path + '; git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
+        date_line = run_command('git log --no-patch -L :' + func[0] + ':' + func[1] + ' 2>/dev/null | grep -m 1 Date:').strip()
         if date_line != '':
             date = parse_date_line(date_line)
             if output_paths:
                 weighted_funcs.append((func[0], date, func[1]))
             else:
                 weighted_funcs.append((func[0], date))
+    chdir(orig_dir)
     return weighted_funcs
 
 def main():
@@ -149,8 +162,7 @@ def main():
     if args.ranked:
         output_funcs = heuristic_to_rank(output_funcs, args.path)
 
-    for func in output_funcs:
-        print(func)
+    print(output_funcs)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+main()

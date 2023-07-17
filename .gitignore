@@ -1,2 +1,6 @@
 ghidra_scripts/headless/*
 .vscode
+**/repo
+**/*.tar
+**/workdir*/**
+**/nohup.out
