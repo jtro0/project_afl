@@ -7,9 +7,7 @@ set -e
 ##
 
 git clone https://github.com/jtro0/project_afl.git "$FUZZER/repo_temp"
-# git -C "$FUZZER/repo" checkout 458eb0813a6f7d63eed97f18696bca8274533123
-git -C "$FUZZER/repo_temp" checkout test_suite
-# git clone
+# git -C "$FUZZER/repo_temp" checkout test_suite
 cp -r $FUZZER/repo_temp/AFLplusplus $FUZZER/repo
 
 # Fix: CMake-based build systems fail with duplicate (of main) or undefined references (of LLVMFuzzerTestOneInput)
@@ -26,6 +24,8 @@ EOF
 
 wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.1_build/ghidra_10.3.1_PUBLIC_20230614.zip -O $FUZZER/ghidra.zip
 unzip $FUZZER/ghidra.zip -d $FUZZER/ghidra
+
+# Changed in src
 
 # patch -p1 -d "$FUZZER/repo" << EOF
 # --- a/utils/aflpp_driver/aflpp_driver.c
