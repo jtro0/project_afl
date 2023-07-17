@@ -3,4 +3,4 @@ ghidra_scripts/headless/*
 **/repo
 **/*.tar
 **/workdir*/**
-nohup.out
+**/nohup.out
