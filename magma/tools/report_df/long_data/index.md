@@ -1,12 +1,7 @@
 ---
 title: Report
 ---
-
-
 {% capture template %}
-
-
-
 <div class="section">
     <h1>Experiment Configuration</h1>
     <ul class="browser-default">
@@ -19,40 +14,26 @@ title: Report
     <h1>Fuzz Targets</h1>
     <p>This report summarizes the results of fuzzing the following targets:</p>
     <ul id="target-list" class="browser-default">
-        
-        <li><a href="targets/libpng.html">libpng</a></li>
-        
-        <li><a href="targets/libtiff.html">libtiff</a></li>
-        
-        <li><a href="targets/libxml2.html">libxml2</a></li>
-        
+        <li><a href="targets/libpng.md">libpng</a></li>
+        <li><a href="targets/libtiff.md">libtiff</a></li>
+        <li><a href="targets/libxml2.md">libxml2</a></li>
     </ul>
 </div>
-
 <div class="section">
     <h1>Evaluated Fuzzers</h1>
     <p>The fuzzers used in this evaluation are listed below:</p>
     <ul id="fuzzer-list" class="browser-default">
-        
-        <li><a href="fuzzers/afl.html">afl</a></li>
-        
-        <li><a href="fuzzers/afl_asan.html">afl_asan</a></li>
-        
-        <li><a href="fuzzers/aflplusplus_lto_asan.html">aflplusplus_lto_asan</a></li>
-        
-        <li><a href="fuzzers/moptafl_asan.html">moptafl_asan</a></li>
-        
-        <li><a href="fuzzers/pst_aflplusplus.html">pst_aflplusplus</a></li>
-        
-        <li><a href="fuzzers/pst_aflplusplus_recent_commit.html">pst_aflplusplus_recent_commit</a></li>
-        
+        <li><a href="fuzzers/afl.md">afl</a></li>
+        <li><a href="fuzzers/afl_asan.md">afl_asan</a></li>
+        <li><a href="fuzzers/aflplusplus_lto_asan.md">aflplusplus_lto_asan</a></li>
+        <li><a href="fuzzers/moptafl_asan.md">moptafl_asan</a></li>
+        <li><a href="fuzzers/pst_aflplusplus.md">pst_aflplusplus</a></li>
+        <li><a href="fuzzers/pst_aflplusplus_recent_commit.md">pst_aflplusplus_recent_commit</a></li>
     </ul>
 </div>
-
 <!--
 EXPERIMENT PARAMETERS WILL BE LISTED HERE
 -->
-
 <div class="section">
     <h1>Experiment Summary</h1>
     <div id="bugs-triggered">
@@ -83,7 +64,6 @@ EXPERIMENT PARAMETERS WILL BE LISTED HERE
         </ul>
         <img class="materialboxed responsive-img" src="plot/summary_signplot.svg">
     </div>
-
     <div id="mean-survival">
         <h2>Mean Survival Time</h2>
         <ul class="collapsible popout">
@@ -560,8 +540,5 @@ EXPERIMENT PARAMETERS WILL BE LISTED HERE
 </table>
     </div>
 </div>
-
-
-
 {% endcapture %}
 {{ template | replace: '    ', ''}}
